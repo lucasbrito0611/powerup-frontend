@@ -25,7 +25,7 @@ git clone https://github.com/lucasbrito0611/powerup-frontend.git
 
 ```bash
 cd powerup-backend
-cp .env.example .env
+cp .env.example .env  # No Windows (CMD), use: copy .env.example .env
 # Preencha as chaves no arquivo .env antes de subir
 ```
 
