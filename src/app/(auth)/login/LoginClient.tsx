@@ -48,8 +48,6 @@ export default function LoginClient() {
                 nome: novoUsuario.nome, 
                 email: novoUsuario.email, 
                 perfil: novoUsuario.perfil, 
-                cpf: novoUsuario.cpf, 
-                telefone: novoUsuario.telefone 
             });
             
             notify(`Bem-vindo, ${novoUsuario.nome}!`, "success");

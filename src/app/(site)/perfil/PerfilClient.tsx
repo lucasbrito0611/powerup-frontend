@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from "react";
 import Image from "next/image";
 import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +29,30 @@ function PerfilClient() {
         }
     })
 
+    useEffect(() => {
+        const loadPerfil = async () => {
+            if (!user?.id) return;
+            try {
+                const response = await api.get(`/clientes/${user.id}/`);
+                const fullUser = {
+                    ...user,
+                    cpf: response.data.cpf,
+                    telefone: response.data.telefone_celular,
+                };
+                setUser(fullUser);
+                reset({
+                    nome: response.data.nome,
+                    email: response.data.user?.email || user.email,
+                    cpf: response.data.cpf || "",
+                    telefone_celular: response.data.telefone_celular || "",
+                });
+            } catch (error) {
+                console.error("Erro ao carregar dados do perfil:", error);
+            }
+        };
+        loadPerfil();
+    }, [user?.id, reset]);
+
     const onSubmit = async (data: EditPerfilSchemaType) => {
         if (!user) return;
 
@@ -49,6 +74,7 @@ function PerfilClient() {
             const updatedUser = {
                 ...user,
                 ...response.data,
+                telefone: response.data.telefone_celular,
                 email: response.data.user?.email || user.email,
             };
 
@@ -59,7 +85,7 @@ function PerfilClient() {
                 nome: updatedUser.nome,
                 email: updatedUser.email,
                 cpf: updatedUser.cpf,
-                telefone_celular: updatedUser.telefone_celular,
+                telefone_celular: updatedUser.telefone,
             });
 
             notify("Dados atualizados com sucesso!", "success");

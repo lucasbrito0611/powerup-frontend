@@ -3,8 +3,8 @@ export interface User {
     nome: string;   
     email: string;
     perfil: string;
-    cpf: string;
-    telefone: string;
+    cpf?: string;
+    telefone?: string;
 };
 
 export interface AuthContextType {
