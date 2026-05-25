@@ -1,19 +1,94 @@
-# PowerUP - Frontend
+# ⚡ PowerUP — Frontend
 
-Este é o frontend do projeto PowerUP, construído com Next.js. O projeto foi configurado para rodar de forma integrada com o backend via Docker Compose.
+Interface web do e-commerce PowerUP para suplementos e produtos fitness. Construída com **Next.js 15**, **TypeScript**, **Tailwind CSS** e integração completa com a API REST do backend via cookies HttpOnly.
 
-## 🚀 Requisitos
+---
 
-- [Docker](https://www.docker.com/) e Docker Compose instalados na máquina.
-- Repositório do backend clonado lado a lado com este repositório.
+## ✨ Destaques
 
-## 🛠️ Como Rodar (Via Docker)
+- 🛒 **Carrinho de compras** com persistência e migração ao logar
+- 🔐 **Autenticação via cookie HttpOnly** — integração segura com o backend
+- 🔄 **Refresh automático** de token em chamadas autenticadas
+- ❤️ **Lista de favoritos** e histórico de pedidos
+- 📦 **Gestão de perfil**: endereços, cartões e devoluções
+- 🎠 **Carrossel de produtos** com Embla Carousel
+- 🔔 **Notificações** em tempo real
+- 🎨 **UI moderna** com Radix UI, shadcn/ui e Lucide Icons
 
-Toda a orquestração dos containers (banco de dados, backend e frontend) fica no repositório do **backend**. Para rodar a aplicação completa, siga os passos abaixo:
+---
 
-### 1. Estrutura de Pastas
+## 🧭 Visão Geral da Stack
 
-É **obrigatório** que os dois repositórios estejam na mesma pasta pai. O docker-compose do backend busca o frontend no diretório vizinho.
+| Camada            | Tecnologia                                       |
+|-------------------|--------------------------------------------------|
+| **Framework**     | Next.js 15 (App Router) com Turbopack            |
+| **Linguagem**     | TypeScript 5                                     |
+| **Estilo**        | Tailwind CSS 4                                   |
+| **Componentes**   | Radix UI · shadcn/ui · Lucide React              |
+| **HTTP Client**   | Axios com interceptors de refresh automático     |
+| **Formulários**   | React Hook Form + Zod                            |
+| **Estado Global** | Context API (AuthContext, ProductContext)         |
+| **Toasts**        | Sonner                                           |
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+powerup-frontend/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   └── login/          # Página de login
+│   │   ├── (site)/
+│   │   │   ├── page.tsx        # Home (produtos em destaque)
+│   │   │   ├── carrinho/       # Carrinho de compras
+│   │   │   ├── categorias/     # Listagem por categoria
+│   │   │   ├── produto/        # Detalhe do produto
+│   │   │   ├── mais-vendidos/  # Mais vendidos
+│   │   │   ├── promocoes/      # Produtos em promoção
+│   │   │   ├── meus-favoritos/ # Lista de favoritos
+│   │   │   ├── meus-pedidos/   # Histórico de pedidos
+│   │   │   ├── minhas-devolucoes/ # Devoluções
+│   │   │   ├── finalizar-pedido/  # Checkout
+│   │   │   ├── comprar-novamente/ # Recompra rápida
+│   │   │   ├── notificacoes/   # Notificações
+│   │   │   └── perfil/         # Dados do usuário
+│   │   └── (admin)/            # Área administrativa
+│   ├── components/             # Componentes reutilizáveis
+│   ├── contexts/
+│   │   ├── AuthContext.tsx     # Estado de autenticação global
+│   │   └── ProductContext.tsx  # Estado de produtos
+│   ├── services/
+│   │   └── api.ts              # Axios configurado + interceptors
+│   ├── types/                  # Tipos TypeScript
+│   ├── schemas/                # Schemas Zod de validação
+│   ├── reducers/               # Reducers de estado
+│   └── lib/                    # Utilitários
+├── public/                     # Assets estáticos
+├── Dockerfile
+├── next.config.ts
+├── tailwind.config.ts
+└── package.json
+```
+
+---
+
+## ✅ Requisitos
+
+- **Node.js 18+** e **npm**
+
+> **Docker e Docker Compose** são opcionais — necessários apenas se quiser subir toda a stack (banco + backend + frontend) de forma orquestrada.
+
+---
+
+## 🚀 Como Rodar
+
+### Via Docker (Recomendado)
+
+Toda a orquestração está no repositório do **backend**. Os dois repositórios precisam estar **lado a lado** na mesma pasta pai.
+
+**1. Clone os repositórios:**
 
 ```bash
 mkdir PowerUP && cd PowerUP
@@ -21,31 +96,47 @@ git clone https://github.com/lucasbrito0611/powerup-backend.git
 git clone https://github.com/lucasbrito0611/powerup-frontend.git
 ```
 
-### 2. Configurar o Ambiente do Backend
+**2. Configure o ambiente do backend:**
 
 ```bash
 cd powerup-backend
-cp .env.example .env  # No Windows (CMD), use: copy .env.example .env
-# Preencha as chaves no arquivo .env antes de subir
+cp .env.example .env
+# Edite o .env e preencha SECRET_KEY e RESEND_API_KEY
 ```
 
-### 3. Iniciar a Aplicação
-
-Ainda dentro de `powerup-backend`, inicie o Docker Compose:
+**3. Suba todos os serviços:**
 
 ```bash
 docker compose up --build
 ```
 
-Acesse o site em: `http://localhost:3000`
+| Serviço  | URL                       |
+|----------|---------------------------|
+| Frontend | http://localhost:3000     |
+| API      | http://localhost:8000     |
 
-> O Next.js já está configurado no docker-compose para utilizar a URL correta da API, seja acessando pelo seu navegador (`NEXT_PUBLIC_API_URL=http://localhost:8000`) ou fazendo requisições SSR internamente no servidor (`API_URL=http://backend:8000`).
+> O Next.js é configurado automaticamente para usar `http://localhost:8000` nas chamadas do browser e `http://backend:8000` nas chamadas SSR internas.
 
-## 💻 Desenvolvimento Local (Sem Docker)
+---
 
-Caso queira trabalhar apenas no frontend localmente (necessita do backend rodando em `localhost:8000`):
+### Desenvolvimento Local (Sem Docker)
+
+Para trabalhar apenas no frontend (o backend precisa estar rodando em `localhost:8000`):
 
 ```bash
 npm install
 npm run dev
 ```
+
+Acesse: `http://localhost:3000`
+
+---
+
+## 🔐 Autenticação
+
+O frontend utiliza um fluxo de autenticação baseado em **cookies HttpOnly**:
+
+1. Ao fazer login, o backend retorna o JWT em um cookie HttpOnly (não acessível via JS)
+2. O `AuthContext` mantém os dados do usuário no estado global
+3. O `api.ts` possui interceptors que detectam erros `401` e disparam o refresh automático do token
+4. Ao deslogar, o cookie é removido pelo endpoint `/logout/` da API
