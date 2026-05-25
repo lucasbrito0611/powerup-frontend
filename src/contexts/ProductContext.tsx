@@ -11,7 +11,7 @@ export function ProdutosProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/produtos')
+    api.get('/produtos/')
       .then(response => {
         setProdutos(response.data);
         setLoading(false);

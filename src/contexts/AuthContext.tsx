@@ -6,6 +6,7 @@ import { useMenu } from "./MenuContext";
 
 import { notify } from '@/lib/toast';
 import { User, AuthContextType } from '@/types/auth';
+import api from '@/services/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -17,14 +18,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { setMenuOpen } = useMenu();
 
     useEffect(() => {
-        const access = localStorage.getItem('access');
-        const userData = localStorage.getItem('user');
+        const checkSession = async () => {
+            try {
+                const response = await api.get('/me/');
+                setUser(response.data);
+            } catch {
+                // 401 = sem sessão ativa, estado correto (não é erro)
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        if (access && userData) {
-            const parsed = JSON.parse(userData);
-            setUser(parsed);
-        }
-        setLoading(false);
+        checkSession();
     }, []);
 
     const login = (userData: User) => {
@@ -32,19 +38,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('user', JSON.stringify(userData));
     };
 
-    const logout = (showMessage = true) => {
+    const logout = async (showMessage = true) => {
         setIsLoggingOut(true);
         setUser(null);
         localStorage.removeItem('user');
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
+
+        try {
+            await api.post('/logout/');
+        } catch {
+            // Mesmo que a chamada falhe, limpamos o estado local
+        }
 
         if (showMessage) {
             notify("Você saiu da sua conta com sucesso.", "success");
         }
 
         setMenuOpen(false);
-        router.replace('/'); 
+        router.replace('/');
     };
 
     return (

@@ -39,9 +39,6 @@ export default function LoginClient() {
                     return; 
                 }
             }
-            
-            localStorage.setItem("access", novoUsuario.access);
-            localStorage.setItem("refresh", novoUsuario.refresh);
 
             login({ 
                 id: novoUsuario.id, 

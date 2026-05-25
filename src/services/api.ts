@@ -1,33 +1,31 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-const api = axios.create({ baseURL: BASE_URL });
+// withCredentials: true — o navegador envia os cookies HttpOnly automaticamente
+// em cada requisição. O JavaScript não tem acesso de leitura aos tokens.
+const api = axios.create({
+    baseURL: BASE_URL,
+    withCredentials: true,
+});
 
 // Mutex de refresh: garante que apenas uma chamada de refresh acontece por vez.
 // Se múltiplos requests perceberem o token expirado simultaneamente,
-// apenas o primeiro faz o refresh — os demais aguardam e reutilizam o novo token.
-let refreshPromise: Promise<string | null> | null = null;
+// apenas o primeiro faz o refresh — os demais aguardam e reutilizam o novo cookie.
+let refreshPromise: Promise<boolean> | null = null;
 
-async function refreshAccessToken(): Promise<string | null> {
+async function tryRefreshToken(): Promise<boolean> {
     if (refreshPromise) return refreshPromise;
 
     refreshPromise = (async () => {
         try {
-            const refresh = localStorage.getItem("refresh");
-            if (!refresh) return null;
-
-            const response = await axios.post(`${BASE_URL}/refresh/`, { refresh });
-            const newToken = response.data.access;
-            if (newToken) {
-                localStorage.setItem("access", newToken);
-                return newToken;
-            }
-            return null;
+            // O cookie refresh é enviado automaticamente pelo navegador.
+            // O backend lê o cookie, gera novo access e seta novo cookie HttpOnly.
+            await axios.post(`${BASE_URL}/refresh/`, {}, { withCredentials: true });
+            return true;
         } catch {
-            return null;
+            return false;
         } finally {
-            // Libera o mutex após o refresh (com ou sem sucesso)
             refreshPromise = null;
         }
     })();
@@ -35,39 +33,34 @@ async function refreshAccessToken(): Promise<string | null> {
     return refreshPromise;
 }
 
-api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-    let token = localStorage.getItem("access");
+// Interceptor de resposta: trata erros 401 (token expirado)
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
 
-    if (!token) return config;
+        // Evita loop infinito: não tenta refresh para rotas de auth nem para /me/
+        const isAuthRoute = ["/login/", "/refresh/", "/logout/", "/me/"].some(
+            (route) => originalRequest?.url?.includes(route)
+        );
 
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const now = Math.floor(Date.now() / 1000);
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
+            originalRequest._retry = true;
 
-        if (payload.exp < now) {
-            const newToken = await refreshAccessToken();
+            const refreshed = await tryRefreshToken();
 
-            if (!newToken) {
-                // Refresh falhou — sessão encerrada
-                localStorage.removeItem("access");
-                localStorage.removeItem("refresh");
-                localStorage.removeItem("user");
+            if (refreshed) {
+                // Novo cookie access já foi setado pelo backend — tenta de novo
+                return api(originalRequest);
+            } else {
+                // Refresh falhou — redireciona para login
                 window.location.href = "/";
                 return Promise.reject(new Error("Sessão expirada. Faça login novamente."));
             }
-
-            token = newToken;
         }
 
-        config.headers = config.headers ?? {};
-        (config.headers as any)["Authorization"] = `Bearer ${token}`;
-
-        return config;
-    } catch (e) {
-        console.error("Erro no interceptor de auth:", e);
-        return config;
+        return Promise.reject(error);
     }
-});
+);
 
 export default api;
-
