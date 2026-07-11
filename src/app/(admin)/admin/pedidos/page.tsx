@@ -65,17 +65,21 @@ export default function PedidosAdmin() {
         }
     }, [sorting, setSorters]);
 
-    // Sincronizar Pesquisa: Quando o usuário digitar, avisamos o Refine
-    // Adicionamos um pequeno delay (debounce) se quiser depois, mas aqui vai direto
+    const [statusFilter, setStatusFilter] = useState('');
+
+    // Sincronizar Pesquisa e Filtros: Quando o usuário alterar, avisamos o Refine
     useEffect(() => {
+        const newFilters: any[] = [];
         if (globalFilter) {
-            setFilters([{ field: "search", operator: "contains", value: globalFilter }]);
-        } else {
-            setFilters([]);
+            newFilters.push({ field: "search", operator: "contains", value: globalFilter });
         }
-        // Quando pesquisa, volta pra página 1
+        if (statusFilter) {
+            newFilters.push({ field: "status", operator: "eq", value: statusFilter });
+        }
+        setFilters(newFilters, "replace");
+        // Quando pesquisa ou filtra, volta pra página 1
         setCurrentPage(1);
-    }, [globalFilter, setFilters, setCurrentPage]);
+    }, [globalFilter, statusFilter, setFilters, setCurrentPage]);
 
     const columns = useMemo<ColumnDef<PedidoProps, any>[]>(() => [
         { accessorKey: "id", header: "ID" },
@@ -127,18 +131,33 @@ export default function PedidosAdmin() {
         <PageWrapper pageName="Pedidos">
             <section className="w-full relative">
                 
-                {/* Barra de Pesquisa */}
-                <div className="mb-6 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+                {/* Controles de Filtro e Pesquisa */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6 relative">
+                    <div className="relative w-full max-w-md">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                            type="text"
+                            value={globalFilter}
+                            onChange={e => setGlobalFilter(e.target.value)}
+                            className="pl-10 p-3 border border-gray-200 rounded-lg w-full focus:ring-2 focus:ring-dark-grey focus:outline-none"
+                            placeholder="Pesquisar pedidos..."
+                        />
                     </div>
-                    <input
-                        type="text"
-                        value={globalFilter}
-                        onChange={e => setGlobalFilter(e.target.value)}
-                        className="pl-10 p-3 border border-gray-200 rounded-lg w-full max-w-md focus:ring-2 focus:ring-dark-grey focus:outline-none"
-                        placeholder="Pesquisar pedidos..."
-                    />
+                    
+                    <select
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                        className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-dark-grey focus:outline-none text-gray-700 font-medium"
+                    >
+                        <option value="">Todos os Status</option>
+                        <option value="1">Processando</option>
+                        <option value="2">Enviado</option>
+                        <option value="3">Entregue</option>
+                        <option value="4">Finalizado</option>
+                        <option value="5">Cancelado</option>
+                    </select>
                 </div>
 
                 {/* Loading indicator sutil quando a tabela está atualizando */}

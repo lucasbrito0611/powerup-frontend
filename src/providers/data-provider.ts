@@ -35,12 +35,15 @@ export const dataProvider = {
         query.append("ordering", orderParam);
       }
 
-      // Busca (Filtro Global)
+      // Busca e Filtros Exatos
       if (filters && filters.length > 0) {
-        const searchFilter = filters.find((f: any) => f.field === "search" || f.field === "q");
-        if (searchFilter && searchFilter.value) {
-          query.append("search", searchFilter.value);
-        }
+        filters.forEach((f: any) => {
+          if (f.field === "search" || f.field === "q") {
+            query.append("search", f.value);
+          } else if (f.operator === "eq") {
+            query.append(f.field, f.value);
+          }
+        });
       }
       
       const endpoint = query.toString() ? `${url}?${query.toString()}` : url;
