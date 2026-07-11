@@ -19,8 +19,8 @@ export const dataProvider = {
 
       // Paginação
       if (pagination && pagination.mode !== "off") {
-        if (pagination.current) {
-          query.append("page", pagination.current.toString());
+        if (pagination.currentPage) {
+          query.append("page", pagination.currentPage.toString());
         }
         if (pagination.pageSize) {
           query.append("page_size", pagination.pageSize.toString());
