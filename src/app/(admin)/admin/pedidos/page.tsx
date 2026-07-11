@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTable } from "@refinedev/core";
-import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, flexRender, SortingState, ColumnDef } from "@tanstack/react-table";
+import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+    SortingState,
+    ColumnDef
+} from "@tanstack/react-table";
 
 import LoadingSpinner from "@/components/loading/LoadingSpinner";
 import { PedidoProps } from "@/types";
@@ -28,16 +34,48 @@ const formatCurrency = (value: number | string) => {
 };
 
 export default function PedidosAdmin() {
-    const { tableQuery } = useTable<PedidoProps>({
-        pagination: { mode: "off" },
+    // 1. O Refine busca os dados (agora em modo Servidor)
+    const { 
+        tableQuery,
+        currentPage,
+        setCurrentPage,
+        pageSize,
+        setPageSize,
+        pageCount,
+        setSorters,
+        setFilters
+    } = useTable<PedidoProps>({
+        pagination: { mode: "server" },
     });
 
     const pedidos = tableQuery.data?.data ?? [];
     const isLoading = tableQuery.isLoading;
+    const totalRegistros = tableQuery.data?.total ?? 0;
 
-    // 2. Estados para o TanStack Table
+    // 2. Estados Locais da UI (TanStack Table)
     const [sorting, setSorting] = useState<SortingState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
+
+    // Sincronizar Ordenação: Quando o usuário clicar na coluna, avisamos o Refine
+    useEffect(() => {
+        if (sorting.length > 0) {
+            setSorters([{ field: sorting[0].id, order: sorting[0].desc ? "desc" : "asc" }]);
+        } else {
+            setSorters([]);
+        }
+    }, [sorting, setSorters]);
+
+    // Sincronizar Pesquisa: Quando o usuário digitar, avisamos o Refine
+    // Adicionamos um pequeno delay (debounce) se quiser depois, mas aqui vai direto
+    useEffect(() => {
+        if (globalFilter) {
+            setFilters([{ field: "search", operator: "contains", value: globalFilter }]);
+        } else {
+            setFilters([]);
+        }
+        // Quando pesquisa, volta pra página 1
+        setCurrentPage(1);
+    }, [globalFilter, setFilters, setCurrentPage]);
 
     const columns = useMemo<ColumnDef<PedidoProps, any>[]>(() => [
         { accessorKey: "id", header: "ID" },
@@ -45,29 +83,41 @@ export default function PedidosAdmin() {
         { accessorKey: "total", header: "Total" },
         { accessorKey: "status", header: "Status" },
         { accessorKey: "dt_hora", header: "Data/Hora" },
-        { id: "acoes", header: "Ações" }
+        { id: "acoes", header: "Ações", enableSorting: false }
     ], []);
 
-    // 3. Configurando a Tabela com o TanStack
+    // 3. Configurando a Tabela com o TanStack (Modo Manual/Servidor)
     const table = useReactTable({
         data: pedidos,
         columns,
+        pageCount: pageCount,
         state: {
             sorting,
             globalFilter,
+            pagination: {
+                pageIndex: currentPage - 1,
+                pageSize: pageSize,
+            }
         },
         onSortingChange: setSorting,
         onGlobalFilterChange: setGlobalFilter,
+        onPaginationChange: (updater) => {
+            if (typeof updater === 'function') {
+                const newState = updater({ pageIndex: currentPage - 1, pageSize });
+                setCurrentPage(newState.pageIndex + 1);
+                setPageSize(newState.pageSize);
+            } else {
+                setCurrentPage(updater.pageIndex + 1);
+                setPageSize(updater.pageSize);
+            }
+        },
+        manualPagination: true,
+        manualSorting: true,
+        manualFiltering: true,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        initialState: {
-            pagination: { pageSize: 10 }
-        }
     });
 
-    if (isLoading) return (
+    if (isLoading && pedidos.length === 0) return (
         <div className="flex justify-center items-center h-[50vh]">
             <LoadingSpinner />
         </div>
@@ -75,7 +125,7 @@ export default function PedidosAdmin() {
 
     return (
         <PageWrapper pageName="Pedidos">
-            <section className="w-full">
+            <section className="w-full relative">
                 
                 {/* Barra de Pesquisa */}
                 <div className="mb-6 relative">
@@ -91,6 +141,13 @@ export default function PedidosAdmin() {
                     />
                 </div>
 
+                {/* Loading indicator sutil quando a tabela está atualizando */}
+                {isLoading && pedidos.length > 0 && (
+                    <div className="absolute top-0 right-0 p-2">
+                        <LoadingSpinner />
+                    </div>
+                )}
+
                 {/* Desktop View */}
                 <div className="hidden sm:block bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -101,8 +158,8 @@ export default function PedidosAdmin() {
                                         {headerGroup.headers.map(header => (
                                             <th 
                                                 key={header.id} 
-                                                onClick={header.column.getToggleSortingHandler()}
-                                                className="p-4 font-semibold text-center border-r border-gray-600 cursor-pointer select-none hover:bg-[#444] transition-colors"
+                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                                className={`p-4 font-semibold text-center border-r border-gray-600 select-none transition-colors ${header.column.getCanSort() ? 'cursor-pointer hover:bg-[#444]' : ''}`}
                                             >
                                                 <div className="flex items-center justify-center gap-1">
                                                     {flexRender(header.column.columnDef.header, header.getContext())}
@@ -114,7 +171,7 @@ export default function PedidosAdmin() {
                                     </tr>
                                 ))}
                             </thead>
-                            <tbody>
+                            <tbody className={isLoading ? "opacity-50 transition-opacity" : ""}>
                                 {table.getRowModel().rows.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="p-8 text-center text-gray-500 italic">
@@ -162,7 +219,7 @@ export default function PedidosAdmin() {
                 </div>
 
                 {/* Mobile View */}
-                <div className="sm:hidden space-y-4">
+                <div className={`sm:hidden space-y-4 ${isLoading ? "opacity-50 transition-opacity" : ""}`}>
                     {table.getRowModel().rows.length === 0 ? (
                         <div className="bg-white p-8 rounded-lg shadow border border-gray-200 text-center text-gray-500 italic">
                             Nenhum pedido encontrado.
@@ -212,7 +269,7 @@ export default function PedidosAdmin() {
                 {/* Controles de Paginação */}
                 <div className="flex items-center justify-between mt-6 bg-white p-4 rounded-lg shadow border border-gray-200">
                     <div className="text-sm text-gray-600">
-                        Mostrando {table.getRowModel().rows.length} de {table.getFilteredRowModel().rows.length} pedidos
+                        Mostrando {pedidos.length} de {totalRegistros} pedidos
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
