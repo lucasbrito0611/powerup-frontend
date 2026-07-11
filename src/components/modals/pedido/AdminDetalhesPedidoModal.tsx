@@ -59,6 +59,7 @@ export default function AdminDetalhesPedidoModal({ pedido }: AdminDetalhesPedido
                                     item={item}
                                     pageName="AdminDetalhes"
                                     statusPedido={pedido.status}
+                                    key={item.id}
                                 />
                             ))}
                         </div>

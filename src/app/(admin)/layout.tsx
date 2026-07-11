@@ -7,6 +7,11 @@ import Footer from "@/components/layout/Footer";
 import LoadingSpinner from "@/components/loading/LoadingSpinner";
 import { useAuth } from "@/contexts/AuthContext";
 
+import { Refine } from "@refinedev/core";
+import routerProvider from "@refinedev/nextjs-router";
+import { dataProvider } from "@/providers/data-provider";
+import { authProvider } from "@/providers/auth-provider";
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const router = useRouter();
@@ -36,7 +41,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="relative flex gap-15 bodyPadding min-h-screen items-stretch dt:py-16 py-12">
                 <Sidebar />
                 <div className="relative z-1 flex-1 flex flex-col gap-15">
-                    {children}
+                    <Refine
+                        dataProvider={dataProvider}
+                        authProvider={authProvider}
+                        routerProvider={routerProvider}
+                        resources={[
+                            {
+                                name: "pedidos",
+                                list: "/admin/pedidos",
+                            }
+                        ]}
+                    >
+                        {children}
+                    </Refine>
                 </div>
             </div>
             <Footer />
