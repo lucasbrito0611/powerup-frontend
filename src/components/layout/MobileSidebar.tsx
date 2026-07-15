@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from 'next/navigation';
 import { useMenu } from "@/contexts/MenuContext";
 import { useAuth } from "@/contexts/AuthContext";
+import dynamic from 'next/dynamic';
 
 import { IoIosClose } from "react-icons/io";
 import { IoHomeSharp } from "react-icons/io5";
@@ -12,9 +13,10 @@ import { MdLogin, MdLogout } from "react-icons/md";
 import { IoMdPersonAdd } from "react-icons/io";
 import { FaRegTrashCan } from "react-icons/fa6";
 
-import AjudaModal from "../modals/AjudaModal";
-import ExcluirContaModal from "../modals/ExcluirContaModal";
 import NavLink from "./NavLink";
+
+const AjudaModal = dynamic(() => import("../modals/AjudaModal"), { ssr: false });
+const ExcluirContaModal = dynamic(() => import("../modals/ExcluirContaModal"), { ssr: false });
 
 export default function MobileSidebar() {
     const pathname = usePathname();

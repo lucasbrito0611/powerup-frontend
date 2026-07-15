@@ -2,17 +2,19 @@
 
 import Link from 'next/link';
 import Image from "next/image";
+import dynamic from 'next/dynamic';
 
 import { IoMenu } from "react-icons/io5";
 import { IoMdCart } from "react-icons/io";
 import { BiSolidBell } from "react-icons/bi";
 
-import UserDropdown from '@/components/UserDropdown';
 import Icon from '@/components/Icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMenu } from '@/contexts/MenuContext';
 import { useCarrinho } from '@/contexts/CarrinhoContext'; 
 import { useNotificacao } from '@/contexts/NotificacaoContext';
+
+const UserDropdown = dynamic(() => import('@/components/UserDropdown'), { ssr: false });
 
 const Topbar = ({ page }: { page: string }) => {
     const { setMenuOpen } = useMenu();

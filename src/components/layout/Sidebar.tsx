@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from "next/image";
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 
 import { IoHomeSharp } from "react-icons/io5";
@@ -11,9 +12,10 @@ import { FaHeart } from "react-icons/fa6";
 import { BiSolidUser } from "react-icons/bi";
 
 import logo from '../../../public/Logo-preta-longa.webp';
-import AjudaModal from '../modals/AjudaModal';
 import MobileSidebar from './MobileSidebar';
 import NavLink from './NavLink';
+
+const AjudaModal = dynamic(() => import('../modals/AjudaModal'), { ssr: false });
 
 const Sidebar = () => {
     const pathname = usePathname();
