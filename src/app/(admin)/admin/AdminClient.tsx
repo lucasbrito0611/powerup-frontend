@@ -5,7 +5,7 @@ import PageWrapper from "@/components/layout/PageWrapper";
 import withAuth from "@/lib/withAuth";
 import api from "@/services/api";
 import { notify } from "@/lib/toast";
-import { DashboardData } from "@/types";
+import { DashboardData } from "@/types/lote";
 
 import { LotesVencidos } from "@/components/tabelas/LotesVencidos";
 import { LotesProximosVencimentos } from "@/components/tabelas/LotesProximosVencimentos";
@@ -59,10 +59,6 @@ function AdminClient() {
                         total={data.resumo.total_proximos} 
                     />
                 )}
-                
-                {/* Aqui você pode adicionar outras tabelas futuramente */}
-                {/* <TabelaMaisVendidos /> */}
-
             </div>
         </PageWrapper>
     )

@@ -24,7 +24,7 @@ export default function AdminDetalhesPedidoModal({ pedido }: AdminDetalhesPedido
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:min-w-[600px] w-full max-w-[90dvw] max-h-[90vh] overflow-y-auto flex flex-col p-6 rounded-xl" aria-describedby={undefined}>
+            <DialogContent className="sm:min-w-[800px]! w-full! max-w-[90dvw] max-h-[90vh] overflow-y-auto flex flex-col p-6 rounded-xl" aria-describedby={undefined}>
                 <DialogHeader className="mb-4">
                     <DialogTitle className="text-2xl font-bold">Detalhes do pedido #{pedido.id}</DialogTitle>
                     <VisuallyHidden>

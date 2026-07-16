@@ -42,3 +42,9 @@ export interface CancelarPedidoProps {
     pedidoId?: number;
     onCancelSuccess: (pedidoId: number) => void;
 }
+
+export interface ExcluirPedidoProps {
+    pedidoId: number;
+    onRefresh?: () => void;
+    className?: string;
+}

@@ -1,4 +1,4 @@
-import { LotesProximosProps } from "@/types";
+import { LotesProximosProps } from "@/types/lote";
 
 export function LotesProximosVencimentos({ dados, total }: LotesProximosProps) {
 

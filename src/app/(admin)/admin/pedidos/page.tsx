@@ -16,7 +16,9 @@ import { formatarData } from "@/lib/utils";
 import PageWrapper from "@/components/layout/PageWrapper";
 import { Button } from "@/components/ui/button";
 import AdminDetalhesPedidoModal from "@/components/modals/pedido/AdminDetalhesPedidoModal";
+import EditPedidoModal from "@/components/modals/pedido/EditPedidoModal";
 import { ChevronDown, ChevronUp, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Search } from "lucide-react";
+import ExcluirPedidoModal from "@/components/modals/pedido/ExcluirPedidoModal";
 
 const STATUS_MAP = {
     '1': 'Processando',
@@ -51,6 +53,10 @@ export default function PedidosAdmin() {
     const pedidos = tableQuery.data?.data ?? [];
     const isLoading = tableQuery.isLoading;
     const totalRegistros = tableQuery.data?.total ?? 0;
+
+    const onRefresh = () => {
+        tableQuery.refetch();
+    };
 
     // 2. Estados Locais da UI (TanStack Table)
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -220,12 +226,16 @@ export default function PedidosAdmin() {
                                                 <td className="p-4">
                                                     <div className="flex flex-col gap-2 xl:flex-row items-center justify-center">
                                                         <AdminDetalhesPedidoModal pedido={pedido} />
-                                                        <Button className="max-xl:w-full bg-dark-grey text-light-green text-base cursor-pointer">
-                                                            Editar
-                                                        </Button>
-                                                        <Button className="max-xl:w-full bg-[#FF360A] hover:bg-[#CC2D08] text-white text-base cursor-pointer">
-                                                            Excluir
-                                                        </Button>
+                                                        <EditPedidoModal 
+                                                            pedido={pedido} 
+                                                            onUpdate={onRefresh} 
+                                                            className="max-xl:w-full bg-dark-grey hover:bg-[#2E2E2E] text-light-green text-base cursor-pointer" 
+                                                        />
+                                                        <ExcluirPedidoModal 
+                                                             pedidoId={pedido.id} 
+                                                             onRefresh={onRefresh} 
+                                                             className="max-xl:w-full bg-[#FF360A] hover:bg-[#CC2D08] text-white text-base cursor-pointer" 
+                                                         />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -272,12 +282,16 @@ export default function PedidosAdmin() {
 
                                     <div className="grid grid-cols-1 gap-2 pt-2 border-t border-gray-100">
                                         <AdminDetalhesPedidoModal pedido={pedido} />
-                                        <Button className="w-full bg-dark-grey text-light-green text-base cursor-pointer">
-                                            Editar
-                                        </Button>
-                                        <Button className="w-full bg-[#FF360A] hover:bg-[#CC2D08] text-white text-base cursor-pointer">
-                                            Excluir
-                                        </Button>
+                                        <EditPedidoModal 
+                                            pedido={pedido} 
+                                            onUpdate={onRefresh} 
+                                            className="w-full bg-dark-grey hover:bg-[#2E2E2E] text-light-green text-base cursor-pointer" 
+                                        />
+                                        <ExcluirPedidoModal 
+                                             pedidoId={pedido.id} 
+                                             onRefresh={onRefresh} 
+                                             className="w-full bg-[#FF360A] hover:bg-[#CC2D08] text-white text-base cursor-pointer" 
+                                         />
                                     </div>
                                 </div>
                             );

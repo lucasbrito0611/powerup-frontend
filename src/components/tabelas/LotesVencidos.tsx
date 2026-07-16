@@ -1,4 +1,4 @@
-import { LotesVencidosProps } from "@/types";
+import { LotesVencidosProps } from "@/types/lote";
 import ExcluirLoteModal from "../modals/ExcluirLoteModal";
 
 export function LotesVencidos({ dados, total, onRefresh }: LotesVencidosProps) {

@@ -5,21 +5,22 @@ import { RiAlertFill } from "react-icons/ri";
 
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Button } from "../ui/button"
+import { Button } from "../../ui/button"
 import { notify } from "@/lib/toast";
 import api from "@/services/api"; 
+import { ExcluirPedidoProps } from "@/types/pedido";
 
-export default function ExcluirLoteModal({ loteId, onRefresh } : {loteId: number; onRefresh?: () => void;}) {
+export default function ExcluirPedidoModal({ pedidoId, onRefresh, className } : ExcluirPedidoProps) {
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const handleDeleteLote = async () => {
+    const handleDeletePedido = async () => {
         setLoading(true);
         try {
-            await api.delete(`/lotes/${loteId}/`);
+            await api.delete(`/pedidos/${pedidoId}/`);
             
-            notify("Lote excluído com sucesso!", "success");
+            notify("Pedido excluído com sucesso!", "success");
             setOpen(false); 
 
             if (onRefresh) {
@@ -29,7 +30,7 @@ export default function ExcluirLoteModal({ loteId, onRefresh } : {loteId: number
             }
         } catch (error) {
             console.error("Erro ao excluir:", error);
-            notify("Erro ao excluir lote. Tente novamente.", "error");
+            notify("Erro ao excluir pedido. Tente novamente.", "error");
         } finally {
             setLoading(false);
         }
@@ -38,13 +39,7 @@ export default function ExcluirLoteModal({ loteId, onRefresh } : {loteId: number
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button 
-                    type="button" 
-                    variant="exclude" 
-                    size="sm"
-                    className="gap-2"
-                >
-                    <Trash2 size={16} /> 
+                <Button className={className || "w-full bg-[#FF360A] hover:bg-[#CC2D08] text-white text-base cursor-pointer"}>
                     Excluir
                 </Button>
             </DialogTrigger>
@@ -52,16 +47,16 @@ export default function ExcluirLoteModal({ loteId, onRefresh } : {loteId: number
             <DialogContent className="w-180 flex flex-col justify-center items-center" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle className="font-semibold text-2xl mb-5 text-center">
-                        Exclusão de Lote
+                        Exclusão de Pedido
                     </DialogTitle>
                     <VisuallyHidden>
-                        <DialogTitle>Exclusão de lote</DialogTitle>
-                        <DialogDescription>Confirmar exclusão do lote.</DialogDescription>
+                        <DialogTitle>Exclusão de pedido</DialogTitle>
+                        <DialogDescription>Confirmar exclusão do pedido.</DialogDescription>
                     </VisuallyHidden>
                 </DialogHeader>
                 <div className="flex flex-col items-center gap-5 px-10 text-center tb:text-xl text-lg font-semibold">
                     <div>
-                        <p>Deseja realmente excluir esse lote?</p>
+                        <p>Deseja realmente excluir esse pedido?</p>
                         <strong>Essa é uma ação permanente.</strong>
                     </div>
                     <RiAlertFill size={60} />
@@ -74,7 +69,7 @@ export default function ExcluirLoteModal({ loteId, onRefresh } : {loteId: number
                         <Button
                             variant="submit"
                             size="submit"
-                            onClick={handleDeleteLote}
+                            onClick={handleDeletePedido}
                             disabled={loading}
                         >
                             {loading ? "Excluindo..." : "Excluir"}
