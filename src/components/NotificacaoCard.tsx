@@ -26,7 +26,7 @@ const NotificacaoCard = ({notificacao} : {notificacao: Notificacao}) => {
     const style = CategoriaConfig[notificacao.categoria] || CategoriaConfig['mensagem_personalizada'];
 
     return (
-        <div className="flex items-center gap-4 p-5 bg-white rounded-lg card-shadow ">
+        <div className="flex items-center gap-4 p-5 bg-white rounded-lg card-shadow">
             <Icon icon={style.icon} />
             
             <div className="flex-1 space-y-1">

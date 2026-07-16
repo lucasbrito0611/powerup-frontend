@@ -5,6 +5,7 @@ export interface User {
     perfil: string;
     cpf?: string;
     telefone?: string;
+    has_password?: boolean;
 };
 
 export interface AuthContextType {

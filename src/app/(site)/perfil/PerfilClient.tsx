@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from "react";
 import Image from "next/image";
-import { useForm, FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import imgEdit from "../../../../public/img-editar.svg"
@@ -56,11 +56,14 @@ function PerfilClient() {
     const onSubmit = async (data: EditPerfilSchemaType) => {
         if (!user) return;
 
+        const cpf = data.cpf || null;
+        const telefone = data.telefone_celular || null;
+
         const updatedData: any = {};
 
         if (data.nome !== user.nome) updatedData.nome = data.nome;
-        if (data.cpf !== user.cpf) updatedData.cpf = data.cpf;
-        if (data.telefone_celular !== user.telefone) updatedData.telefone_celular = data.telefone_celular;
+        if (cpf !== (user.cpf || null)) updatedData.cpf = cpf;
+        if (telefone !== (user.telefone || null)) updatedData.telefone_celular = telefone;
         if (data.email !== user.email) updatedData.user = { email: data.email };
 
         if (Object.keys(updatedData).length === 0) {
@@ -156,7 +159,7 @@ function PerfilClient() {
                                 Atualizar
                             </Button>
                         </form>
-                        <RedefinirSenhaModal />
+                        {(user?.has_password ?? true) && <RedefinirSenhaModal />}
                     </div>
                     <Image src={imgEdit} width={225} alt="Imagem de editar" priority className="hidden nt-lg:block" />
                 </section>

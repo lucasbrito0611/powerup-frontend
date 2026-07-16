@@ -61,7 +61,7 @@ function NotificacoesClient() {
                                     <p className='text-gray text-sm hover:underline cursor-pointer'>Limpar todas as notificações</p>
                                 </button>
                                 
-                                <div className="2xl:max-h-[700px] overflow-auto p-1 pr-2 space-y-5">
+                                <div className="w-full 2xl:max-h-[700px] overflow-auto p-1 pr-2 space-y-5">
                                     {notificacoes.map((notificacao) => (
                                         <NotificacaoCard key={notificacao.id} notificacao={notificacao} />
                                     ))}

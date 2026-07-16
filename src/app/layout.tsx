@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { MenuProvider } from "@/contexts/MenuContext";
 import { CarrinhoProvider } from "@/contexts/CarrinhoContext";
 import { NotificacaoProvider } from "@/contexts/NotificacaoContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const baiJamjuree = Bai_Jamjuree({
   subsets: ["latin"],
@@ -35,16 +36,18 @@ export default function RootLayout({ children }:
         <link rel="icon" href="/favicons/favicon-dark.ico" media="(prefers-color-scheme: light)"/>
       </head>
       <body className={`${baiJamjuree.className} antialiased`}>
-        <MenuProvider>
-          <AuthProvider>
-            <CarrinhoProvider>
-              <NotificacaoProvider>
-                {children}  
-              </NotificacaoProvider>
-            </CarrinhoProvider>
-            <Toaster />
-          </AuthProvider>
-        </MenuProvider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+          <MenuProvider>
+            <AuthProvider>
+              <CarrinhoProvider>
+                <NotificacaoProvider>
+                  {children}  
+                </NotificacaoProvider>
+              </CarrinhoProvider>
+              <Toaster />
+            </AuthProvider>
+          </MenuProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
