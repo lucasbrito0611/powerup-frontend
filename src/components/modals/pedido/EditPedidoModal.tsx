@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useState } from "react"
 import { useForm, FieldErrors } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,17 +9,11 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { editPedidoSchema, EditPedidoSchemaType } from "@/schemas/editPedidoSchema";
 import { notify } from "@/lib/toast";
-import { PedidoProps, PEDIDO_STATUS_MAP } from "@/types/pedido";
+import {PEDIDO_STATUS_MAP, EditPedidoModalProps } from "@/types/pedido";
 import LoadingContainer from "../../loading/LoadingContainer";
-import api from "@/services/api";
+import { useUpdate } from "@refinedev/core";
 
-interface EditPedidoModalProps {
-    pedido: PedidoProps;
-    onUpdate?: (updatedPedido: PedidoProps) => void;
-    className?: string;
-}
-
-export default function EditPedidoModal({ pedido, onUpdate, className }: EditPedidoModalProps) {
+export default function EditPedidoModal({ pedido, className }: EditPedidoModalProps) {
     const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<EditPedidoSchemaType>({
         resolver: zodResolver(editPedidoSchema),
         mode: "onChange",
@@ -28,36 +22,38 @@ export default function EditPedidoModal({ pedido, onUpdate, className }: EditPed
         }
     });
 
-    const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+    const { mutate, mutation } = useUpdate();
 
-    const onSubmit = async (data: EditPedidoSchemaType) => {
+    const onSubmit = (data: EditPedidoSchemaType) => {
         if (!isDirty) {
             notify("Altere o status antes de atualizar.", "warning");
             return;
         }
 
-        try {
-            setLoading(true);
-            const response = await api.patch(`/pedidos/${pedido.id}/`, data);
-
-            if (onUpdate) {
-                onUpdate(response.data);
+        mutate(
+            {
+                resource: "pedidos",
+                id: pedido.id,
+                values: data,
+            },
+            {
+                onSuccess: () => {
+                    setOpen(false);
+                    notify("Status do pedido atualizado com sucesso!", "success");
+                },
+                onError: (error: any) => {
+                    if (error.response) {
+                        console.error("Erro na resposta da API:", error.response.data);
+                        const erros = error.response.data.errors || error.response.data.detail || "Erro ao atualizar status";
+                        notify(erros, "error");
+                    } else {
+                        console.error("Erro:", error.message || error);
+                        notify("Erro ao atualizar status. Tente novamente.", "error");
+                    }
+                }
             }
-            setOpen(false);
-            notify("Status do pedido atualizado com sucesso!", "success");
-        } catch (error: any) {
-            if (error.response) {
-                console.error("Erro na resposta da API:", error.response.data);
-                const erros = error.response.data.errors || error.response.data.detail || "Erro ao atualizar status";
-                notify(erros, "error");
-            } else {
-                console.error("Erro de rede:", error.message);
-                notify("Erro de rede. Tente novamente.", "error");
-            }
-        } finally {
-            setLoading(false);
-        }
+        );
     }
 
     const onError = (errors: FieldErrors<EditPedidoSchemaType>) => {
@@ -86,7 +82,7 @@ export default function EditPedidoModal({ pedido, onUpdate, className }: EditPed
                     </VisuallyHidden>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col items-center gap-6 sm:w-4/5 w-full">
-                    <LoadingContainer loading={loading}>
+                    <LoadingContainer loading={mutation.isPending}>
                         <label htmlFor="status" className="flex flex-col space-x-2 sm:text-lg w-full">
                             <strong className="mb-2">Status do Pedido:*</strong>
                             <select {...register("status")} id="status" className="input bg-white cursor-pointer h-10 px-2 rounded-sm">

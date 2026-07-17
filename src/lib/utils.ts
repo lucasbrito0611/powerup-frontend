@@ -46,3 +46,10 @@ export function formatarData(dateString: string): string {
 export function capitalize(word: string): string {
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
+
+export function formatCurrency(value: number | string): string {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(Number(value));
+}

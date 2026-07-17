@@ -67,5 +67,25 @@ export const dataProvider = {
      
     const { data } = await api.get(url);
     return { data };
+  },
+
+  update: async (params: any) => {
+    const { resource, id, variables } = params;
+    const url = `/${resource}/${id}/`;
+    
+    // Se for FormData (ex: upload de imagem), usa multipart; senão, JSON normal
+    const isFormData = variables instanceof FormData;
+    const { data } = await api.patch(url, variables, isFormData ? {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    } : undefined);
+    return { data };
+  },
+
+  deleteOne: async (params: any) => {
+    const { resource, id, variables } = params;
+    const url = `/${resource}/${id}/`;
+    
+    const { data } = await api.delete(url, { data: variables });
+    return { data };
   }
 };

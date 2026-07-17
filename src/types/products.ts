@@ -1,3 +1,12 @@
+export type ProdutoCategoriaType = 'suplementos' | 'alimentos' | 'roupas' | 'acessorios';
+
+export const CATEGORIA_MAP: Record<ProdutoCategoriaType, string> = {
+    'suplementos': 'Suplementos',
+    'alimentos': 'Alimentos',
+    'roupas': 'Roupas',
+    'acessorios': 'Acessórios',
+};
+
 export interface ProductProps {
   id: number;
   nome: string;
@@ -5,7 +14,7 @@ export interface ProductProps {
   descricao: string;
   imagem: string;
   porcentagem_desconto: number;
-  categoria: string;
+  categoria: ProdutoCategoriaType;
   preco_calculado: number;
   is_favorited: boolean;
   estoque?: number;

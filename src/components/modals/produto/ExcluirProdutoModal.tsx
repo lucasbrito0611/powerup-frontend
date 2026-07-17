@@ -1,33 +1,38 @@
 'use client';
 import { useState } from "react";
-import { Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { RiAlertFill } from "react-icons/ri";
-
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Button } from "../../ui/button"
-import { notify } from "@/lib/toast";
 import { useDelete } from "@refinedev/core";
-import { ExcluirPedidoProps } from "@/types/pedido";
 
-export default function ExcluirPedidoModal({ pedidoId, className } : ExcluirPedidoProps) {
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Button } from "@/components/ui/button";
+import { notify } from "@/lib/toast";
+
+interface ExcluirProdutoModalProps {
+    produtoId: number;
+    nomeProduto: string;
+    className?: string;
+}
+
+export default function ExcluirProdutoModal({ produtoId, nomeProduto, className }: ExcluirProdutoModalProps) {
     const [open, setOpen] = useState(false);
     const { mutate, mutation } = useDelete();
 
-    const handleDeletePedido = () => {
+    const handleDelete = () => {
         mutate(
             {
-                resource: "pedidos",
-                id: pedidoId,
+                resource: "produtos",
+                id: produtoId,
             },
             {
                 onSuccess: () => {
-                    notify("Pedido excluído com sucesso!", "success");
+                    notify("Produto excluído com sucesso!", "success");
                     setOpen(false);
                 },
                 onError: (error) => {
                     console.error("Erro ao excluir:", error);
-                    notify("Erro ao excluir pedido. Tente novamente.", "error");
+                    notify("Erro ao excluir produto. Tente novamente.", "error");
                 },
             }
         );
@@ -44,16 +49,16 @@ export default function ExcluirPedidoModal({ pedidoId, className } : ExcluirPedi
             <DialogContent className="w-180 flex flex-col justify-center items-center" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle className="font-semibold text-2xl mb-5 text-center">
-                        Exclusão de Pedido
+                        Exclusão de Produto
                     </DialogTitle>
                     <VisuallyHidden>
-                        <DialogTitle>Exclusão de pedido</DialogTitle>
-                        <DialogDescription>Confirmar exclusão do pedido.</DialogDescription>
+                        <DialogDescription>Confirmar exclusão do produto.</DialogDescription>
                     </VisuallyHidden>
                 </DialogHeader>
+
                 <div className="flex flex-col items-center gap-5 px-10 text-center tb:text-xl text-lg font-semibold">
                     <div>
-                        <p>Deseja realmente excluir esse pedido?</p>
+                        <p>Deseja realmente excluir <strong>"{nomeProduto}"</strong>?</p>
                         <strong>Essa é uma ação permanente.</strong>
                     </div>
                     <RiAlertFill size={60} />
@@ -66,13 +71,14 @@ export default function ExcluirPedidoModal({ pedidoId, className } : ExcluirPedi
                         <Button
                             variant="submit"
                             size="submit"
-                            onClick={handleDeletePedido}
+                            onClick={handleDelete}
                             disabled={mutation.isPending}
                         >
                             {mutation.isPending ? "Excluindo..." : "Excluir"}
                         </Button>
                     </div>
                 </div>
+
                 <DialogClose asChild>
                     <button className="absolute p-0.5 right-4 top-4 border-none rounded-sm text-black hover:bg-gray-200 transition-color-slow cursor-pointer focus:outline-none">
                         <X className="w-7 h-auto" />
@@ -80,5 +86,5 @@ export default function ExcluirPedidoModal({ pedidoId, className } : ExcluirPedi
                 </DialogClose>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

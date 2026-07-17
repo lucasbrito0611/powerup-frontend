@@ -11,9 +11,10 @@ export function ProdutosProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/produtos/')
+    api.get('/produtos/?page_size=9999')
       .then(response => {
-        setProdutos(response.data);
+        const data = response.data;
+        setProdutos(Array.isArray(data) ? data : (data.results ?? []));
         setLoading(false);
       })
       .catch(err => {
