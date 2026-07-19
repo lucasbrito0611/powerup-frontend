@@ -16,6 +16,13 @@ export interface LotesProximosProps {
     total: number;
 }
 
+export interface ExcluirLoteModalProps {
+    loteId?: number;
+    loteIds?: number[];
+    onRefresh?: () => void;
+    onSuccess?: () => void;
+}
+
 export interface DashboardData {
     resumo: {
         total_vencidos: number;
