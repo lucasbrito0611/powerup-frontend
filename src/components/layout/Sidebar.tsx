@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import Image from "next/image";
 import dynamic from 'next/dynamic';
-import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { IoHomeSharp } from "react-icons/io5";
 import { BsFillLightningChargeFill, BsBasket3Fill } from "react-icons/bs";
 import { FaTrophy } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { BiSolidUser } from "react-icons/bi";
-import { MdOutlineInventory2 } from "react-icons/md";
+import { MdInventory2 } from "react-icons/md";
 
 import logo from '../../../public/Logo-preta-longa.webp';
 import MobileSidebar from './MobileSidebar';
@@ -19,8 +19,8 @@ import NavLink from './NavLink';
 const AjudaModal = dynamic(() => import('../modals/AjudaModal'), { ssr: false });
 
 const Sidebar = () => {
-    const pathname = usePathname();
-    const isAdminRoute = pathname?.startsWith('/admin');
+    const { user } = useAuth();
+    const isAdminRoute = user?.perfil === 'admin';
 
     return (
         <>
@@ -47,7 +47,7 @@ const Sidebar = () => {
                         ) : (
                             <ul className="flex flex-col gap-6">
                                 <NavLink href="/admin" icon={<IoHomeSharp size={24} />} name="Painel Admin" />
-                                <NavLink href="/admin/produtos" icon={<MdOutlineInventory2 size={24} />} name="Produtos" />
+                                <NavLink href="/admin/produtos" icon={<MdInventory2 size={24} />} name="Produtos" />
                                 <NavLink href="/admin/pedidos" icon={<BsBasket3Fill size={24} />} name="Pedidos" />
                                 <NavLink href="/admin/perfil" icon={<BiSolidUser size={24} />} name="Meu Perfil" />
                             </ul>
