@@ -69,6 +69,18 @@ export const dataProvider = {
     return { data };
   },
 
+  create: async (params: any) => {
+    const { resource, variables } = params;
+    const url = `/${resource}/`;
+
+    // Se for FormData (ex: upload de imagem), usa multipart; senão, JSON normal
+    const isFormData = variables instanceof FormData;
+    const { data } = await api.post(url, variables, isFormData ? {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    } : undefined);
+    return { data };
+  },
+
   update: async (params: any) => {
     const { resource, id, variables } = params;
     const url = `/${resource}/${id}/`;

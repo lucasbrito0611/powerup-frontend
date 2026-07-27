@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm, FieldErrors } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -21,6 +21,10 @@ export default function EditPedidoModal({ pedido, className }: EditPedidoModalPr
             status: pedido.status,
         }
     });
+
+    useEffect(() => {
+        reset({ status: pedido.status });
+    }, [pedido]);
 
     const [open, setOpen] = useState(false);
     const { mutate, mutation } = useUpdate();

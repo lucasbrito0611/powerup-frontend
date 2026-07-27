@@ -13,6 +13,7 @@ import AdminDetalhesProdutoModal from "@/components/modals/produto/AdminDetalhes
 import EditProdutoModal from "@/components/modals/produto/EditProdutoModal";
 import ExcluirProdutoModal from "@/components/modals/produto/ExcluirProdutoModal";
 import { formatCurrency } from "@/lib/utils";
+import CriarProdutoModal from "@/components/modals/produto/CriarProdutoModal";
 
 export default function ProdutosAdmin() {
     // 1. O Refine busca os dados (modo Servidor)
@@ -72,7 +73,7 @@ export default function ProdutosAdmin() {
         { accessorKey: "preco", header: "Preço" },
         { accessorKey: "porcentagem_desconto", header: "Desconto" },
         { accessorKey: "categoria", header: "Categoria" },
-        { accessorKey: "estoque", header: "Estoque", enableSorting: false },
+        { accessorKey: "estoque", header: "Estoque" },
         { id: "acoes", header: "Ações", enableSorting: false }
     ], []);
 
@@ -118,31 +119,35 @@ export default function ProdutosAdmin() {
             <section className="w-full relative">
 
                 {/* Controles de Filtro e Pesquisa */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6 relative">
-                    <div className="relative w-full max-w-md">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-5 w-5 text-gray-400" />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                        <div className="relative w-full max-w-md">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input
+                                type="text"
+                                value={globalFilter}
+                                onChange={e => setGlobalFilter(e.target.value)}
+                                className="pl-10 p-3 border border-gray-200 rounded-lg w-full focus:ring-2 focus:ring-dark-grey focus:outline-none"
+                                placeholder="Pesquisar produtos..."
+                            />
                         </div>
-                        <input
-                            type="text"
-                            value={globalFilter}
-                            onChange={e => setGlobalFilter(e.target.value)}
-                            className="pl-10 p-3 border border-gray-200 rounded-lg w-full focus:ring-2 focus:ring-dark-grey focus:outline-none"
-                            placeholder="Pesquisar produtos..."
-                        />
+
+                        <select
+                            value={categoriaFilter}
+                            onChange={e => setCategoriaFilter(e.target.value)}
+                            className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-dark-grey focus:outline-none text-gray-700 font-medium"
+                        >
+                            <option value="">Todas as Categorias</option>
+                            <option value="suplementos">Suplementos</option>
+                            <option value="alimentos">Alimentos</option>
+                            <option value="roupas">Roupas</option>
+                            <option value="acessorios">Acessórios</option>
+                        </select>
                     </div>
 
-                    <select
-                        value={categoriaFilter}
-                        onChange={e => setCategoriaFilter(e.target.value)}
-                        className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-dark-grey focus:outline-none text-gray-700 font-medium"
-                    >
-                        <option value="">Todas as Categorias</option>
-                        <option value="suplementos">Suplementos</option>
-                        <option value="alimentos">Alimentos</option>
-                        <option value="roupas">Roupas</option>
-                        <option value="acessorios">Acessórios</option>
-                    </select>
+                    <CriarProdutoModal onSuccess={onRefresh} />
                 </div>
 
                 {/* Loading indicator sutil quando a tabela está atualizando */}

@@ -1,47 +1,36 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
-import { useUpdate } from "@refinedev/core";
+import { X, Plus } from "lucide-react";
+import { useCreate } from "@refinedev/core";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { notify } from "@/lib/toast";
-import { ProductProps, CATEGORIA_MAP } from "@/types/products";
-import { editProdutoSchema, EditProdutoSchemaType } from "@/schemas/editProdutoSchema";
+import { CATEGORIA_MAP } from "@/types/products";
+import { criarProdutoSchema, CriarProdutoSchemaType } from "@/schemas/criarProdutoSchema";
 import LoadingContainer from "@/components/loading/LoadingContainer";
 
-interface EditProdutoModalProps {
-    produto: ProductProps;
+interface CriarProdutoModalProps {
     className?: string;
+    onSuccess?: () => void;
 }
 
-export default function EditProdutoModal({ produto, className }: EditProdutoModalProps) {
+export default function CriarProdutoModal({ className, onSuccess }: CriarProdutoModalProps) {
     const [open, setOpen] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const { mutate, mutation } = useUpdate();
+    const { mutate, mutation } = useCreate();
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<EditProdutoSchemaType>({
-        resolver: zodResolver(editProdutoSchema),
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<CriarProdutoSchemaType>({
+        resolver: zodResolver(criarProdutoSchema),
         mode: "onChange",
         defaultValues: {
-            nome: produto.nome,
-            preco: String(produto.preco),
-            porcentagem_desconto: String(produto.porcentagem_desconto ?? 0),
-            categoria: produto.categoria,
+            porcentagem_desconto: "0",
+            categoria: "suplementos",
         },
     });
-
-    useEffect(() => {
-        reset({
-            nome: produto.nome,
-            preco: String(produto.preco),
-            porcentagem_desconto: String(produto.porcentagem_desconto ?? 0),
-            categoria: produto.categoria,
-        });
-    }, [produto]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -51,54 +40,53 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
     const handleClose = (isOpen: boolean) => {
         if (!isOpen) {
             reset({
-                nome: produto.nome,
-                preco: String(produto.preco),
-                porcentagem_desconto: String(produto.porcentagem_desconto ?? 0),
-                categoria: produto.categoria,
+                nome: "",
+                descricao: "",
+                preco: "",
+                porcentagem_desconto: "0",
+                categoria: "suplementos",
             });
             setPreviewUrl(null);
         }
         setOpen(isOpen);
     };
 
-    const onSubmit = (data: EditProdutoSchemaType) => {
+    const onSubmit = (data: CriarProdutoSchemaType) => {
         const formData = new FormData();
         formData.append("nome", data.nome);
+        formData.append("descricao", data.descricao);
         formData.append("preco", String(Number(data.preco.replace(",", "."))));
         formData.append("porcentagem_desconto", String(Number(data.porcentagem_desconto)));
         formData.append("categoria", data.categoria);
-
-        if (data.imagem && data.imagem.length > 0) {
-            formData.append("imagem_upload", data.imagem[0]);
-        }
+        formData.append("imagem_upload", data.imagem[0]);
 
         mutate(
             {
                 resource: "produtos",
-                id: produto.id,
                 values: formData,
             },
             {
                 onSuccess: () => {
                     setOpen(false);
                     setPreviewUrl(null);
-                    notify("Produto atualizado com sucesso!", "success");
+                    notify("Produto criado com sucesso!", "success");
+                    onSuccess?.();
                 },
                 onError: (error: any) => {
                     if (error.response) {
                         console.error("Erro na resposta da API:", error.response.data);
-                        const erros = error.response.data.errors || error.response.data.detail || "Erro ao atualizar produto";
+                        const erros = error.response.data.errors || error.response.data.detail || "Erro ao criar produto";
                         notify(erros, "error");
                     } else {
                         console.error("Erro:", error.message || error);
-                        notify("Erro ao atualizar produto. Tente novamente.", "error");
+                        notify("Erro ao criar produto. Tente novamente.", "error");
                     }
                 },
             }
         );
     };
 
-    const onError = (errors: FieldErrors<EditProdutoSchemaType>) => {
+    const onError = (errors: FieldErrors<CriarProdutoSchemaType>) => {
         const firstError = Object.values(errors)[0];
         if (firstError && "message" in firstError) {
             notify(firstError.message as string, "warning");
@@ -107,23 +95,22 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
         }
     };
 
-    const imagemAtual = previewUrl ?? produto.imagem;
-
     return (
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogTrigger asChild>
-                <Button variant={className ? undefined : "submit"} className={className}>
-                    Editar
+                <Button variant="submit" size="submit" className={className}>
+                    <Plus className="w-4 h-4" />
+                    Novo Produto
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:min-w-[600px]! w-full! max-w-[90dvw] max-h-[90vh] overflow-y-auto flex flex-col py-10 px-6" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle className="font-semibold text-2xl mb-5">
-                        Edição do Produto <strong>#{produto.id}</strong>
+                        Criar Novo Produto
                     </DialogTitle>
                     <VisuallyHidden>
-                        <DialogDescription>Alterar informações do produto selecionado</DialogDescription>
+                        <DialogDescription>Preencha os campos para adicionar um novo produto ao catálogo</DialogDescription>
                     </VisuallyHidden>
                 </DialogHeader>
 
@@ -131,25 +118,38 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                     <LoadingContainer loading={mutation.isPending}>
 
                         {/* Nome */}
-                        <label htmlFor="nome" className="flex flex-col gap-1 sm:text-base w-full">
+                        <label htmlFor="criar-nome" className="flex flex-col gap-1 sm:text-base w-full">
                             <strong>Nome:*</strong>
                             <input
                                 {...register("nome")}
-                                id="nome"
+                                id="criar-nome"
                                 type="text"
-                                className="input bg-white h-10 px-3 rounded-sm"
+                                className="input bg-white h-10 px-3"
                                 placeholder="Nome do produto"
                             />
                             {errors.nome && <p className="text-red-500 text-sm mt-1">{errors.nome.message}</p>}
                         </label>
 
+                        {/* Descrição */}
+                        <label htmlFor="criar-descricao" className="flex flex-col gap-1 sm:text-base w-full">
+                            <strong>Descrição:*</strong>
+                            <textarea
+                                {...register("descricao")}
+                                id="criar-descricao"
+                                rows={4}
+                                className="input bg-white px-3 py-2 rounded-sm resize-none"
+                                placeholder="Descrição detalhada do produto"
+                            />
+                            {errors.descricao && <p className="text-red-500 text-sm mt-1">{errors.descricao.message}</p>}
+                        </label>
+
                         {/* Preço e Desconto lado a lado */}
                         <div className="flex gap-4">
-                            <label htmlFor="preco" className="flex flex-col gap-1 sm:text-base flex-1">
+                            <label htmlFor="criar-preco" className="flex flex-col gap-1 sm:text-base flex-1">
                                 <strong>Preço (R$):*</strong>
                                 <input
                                     {...register("preco")}
-                                    id="preco"
+                                    id="criar-preco"
                                     type="text"
                                     className="input bg-white h-10 px-3 rounded-sm"
                                     placeholder="Ex: 99.90"
@@ -157,11 +157,11 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                                 {errors.preco && <p className="text-red-500 text-sm mt-1">{errors.preco.message}</p>}
                             </label>
 
-                            <label htmlFor="porcentagem_desconto" className="flex flex-col gap-1 sm:text-base flex-1">
-                                <strong>Desconto (%):*</strong>
+                            <label htmlFor="criar-porcentagem_desconto" className="flex flex-col gap-1 sm:text-base flex-1">
+                                <strong>Desconto (%):</strong>
                                 <input
                                     {...register("porcentagem_desconto")}
-                                    id="porcentagem_desconto"
+                                    id="criar-porcentagem_desconto"
                                     type="number"
                                     min={0}
                                     max={100}
@@ -173,11 +173,11 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                         </div>
 
                         {/* Categoria */}
-                        <label htmlFor="categoria" className="flex flex-col gap-1 sm:text-base w-full">
+                        <label htmlFor="criar-categoria" className="flex flex-col gap-1 sm:text-base w-full">
                             <strong>Categoria:*</strong>
                             <select
                                 {...register("categoria")}
-                                id="categoria"
+                                id="criar-categoria"
                                 className="input bg-white cursor-pointer h-10 px-2 rounded-sm"
                             >
                                 {Object.entries(CATEGORIA_MAP).map(([key, label]) => (
@@ -188,12 +188,12 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                         </label>
 
                         {/* Imagem */}
-                        <label htmlFor="imagem" className="flex flex-col gap-1 sm:text-base w-full">
-                            <strong>Imagem:</strong>
+                        <label htmlFor="criar-imagem" className="flex flex-col gap-1 sm:text-base w-full">
+                            <strong>Imagem:*</strong>
                             <div className="flex flex-col sm:flex-row items-start gap-4">
-                                {imagemAtual && (
+                                {previewUrl && (
                                     <img
-                                        src={imagemAtual}
+                                        src={previewUrl}
                                         alt="Preview do produto"
                                         className="w-24 h-24 object-cover rounded-lg border border-gray-200 flex-shrink-0"
                                     />
@@ -201,7 +201,7 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                                 <div className="flex flex-col gap-1 flex-1">
                                     <input
                                         {...register("imagem")}
-                                        id="imagem"
+                                        id="criar-imagem"
                                         type="file"
                                         accept="image/jpeg,image/png,image/webp"
                                         onChange={(e) => {
@@ -210,7 +210,7 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
                                         }}
                                         className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
                                     />
-                                    <p className="text-xs text-gray-400">JPG, PNG ou WEBP · máx. 5MB · Deixe vazio para manter a imagem atual.</p>
+                                    <p className="text-xs text-gray-400">Dimensão recomendada: 220x220. Máx.: 3 GB.</p>
                                 </div>
                             </div>
                             {errors.imagem && <p className="text-red-500 text-sm mt-1">{errors.imagem.message as string}</p>}
@@ -218,7 +218,7 @@ export default function EditProdutoModal({ produto, className }: EditProdutoModa
 
                         <div className="flex gap-8 mt-3 justify-center">
                             <Button variant="submit" size="submit" type="submit">
-                                Atualizar
+                                Criar Produto
                             </Button>
                             <DialogClose asChild>
                                 <Button variant="close" size="close" type="button" onClick={() => handleClose(false)}>
