@@ -10,6 +10,7 @@ import { BsFillLightningChargeFill, BsBasket3Fill } from "react-icons/bs";
 import { FaTrophy, FaHeart } from "react-icons/fa";
 import { BiSolidUser } from "react-icons/bi";
 import { MdLogin, MdLogout, MdInventory2 } from "react-icons/md";
+import { LuPackage } from "react-icons/lu";
 import { IoMdPersonAdd } from "react-icons/io";
 import { FaRegTrashCan } from "react-icons/fa6";
 
@@ -83,6 +84,7 @@ export default function MobileSidebar() {
                             <ul className="flex flex-col gap-6">
                                 <NavLink href="/admin" icon={<IoHomeSharp />} name="Painel Admin" />
                                 <NavLink href="/admin/produtos" icon={<MdInventory2 />} name="Produtos" />
+                                <NavLink href="/admin/lotes" icon={<LuPackage />} name="Lotes" />
                                 <NavLink href="/admin/pedidos" icon={<BsBasket3Fill />} name="Pedidos" />
                                 <NavLink href="/admin/perfil" icon={<BiSolidUser />} name="Meu Perfil" />
                             </ul>

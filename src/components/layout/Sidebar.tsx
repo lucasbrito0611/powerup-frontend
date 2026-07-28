@@ -11,6 +11,7 @@ import { FaTrophy } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { BiSolidUser } from "react-icons/bi";
 import { MdInventory2 } from "react-icons/md";
+import { LuPackage } from "react-icons/lu";
 
 import logo from '../../../public/Logo-preta-longa.webp';
 import MobileSidebar from './MobileSidebar';
@@ -48,6 +49,7 @@ const Sidebar = () => {
                             <ul className="flex flex-col gap-6">
                                 <NavLink href="/admin" icon={<IoHomeSharp size={24} />} name="Painel Admin" />
                                 <NavLink href="/admin/produtos" icon={<MdInventory2 size={24} />} name="Produtos" />
+                                <NavLink href="/admin/lotes" icon={<LuPackage size={24} />} name="Lotes" />
                                 <NavLink href="/admin/pedidos" icon={<BsBasket3Fill size={24} />} name="Pedidos" />
                                 <NavLink href="/admin/perfil" icon={<BiSolidUser size={24} />} name="Meu Perfil" />
                             </ul>

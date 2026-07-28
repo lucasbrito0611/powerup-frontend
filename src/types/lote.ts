@@ -1,8 +1,10 @@
 export interface Lote {
     id: number;
+    produto: number;
     produto_nome: string;
     validade: string;
     quantidade: number;
+    data_entrada: string;
 }
 
 export interface LotesVencidosProps {
