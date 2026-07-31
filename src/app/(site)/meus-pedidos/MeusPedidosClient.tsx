@@ -73,19 +73,23 @@ function MeusPedidosClient() {
 
     useEffect(() => {
         api.get("/pedidos/")
-            .then(res => setPedidos(res.data))
+            .then(res => {
+                const lista = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setPedidos(lista);
+            })
             .catch(err => console.error("Erro ao carregar pedidos:", err))
             .finally(() => setLoading(false));
     }, []);
 
     const handlePedidoCancelado = (pedidoId: number) => {
-        setPedidos(currentPedidos =>
-            currentPedidos.map(pedido =>
+        setPedidos(currentPedidos => {
+            const lista = Array.isArray(currentPedidos) ? currentPedidos : [];
+            return lista.map(pedido =>
                 pedido.id === pedidoId
                     ? { ...pedido, status: '5' }
                     : pedido
-            )
-        );
+            );
+        });
 
         setStatusFiltro('5');
     };
@@ -95,13 +99,14 @@ function MeusPedidosClient() {
         try {
             await api.post(`/pedidos/${pedidoId}/confirmar_entrega/`);
 
-            setPedidos(currentPedidos =>
-                currentPedidos.map(pedido =>
+            setPedidos(currentPedidos => {
+                const lista = Array.isArray(currentPedidos) ? currentPedidos : [];
+                return lista.map(pedido =>
                     pedido.id === pedidoId
                         ? { ...pedido, status: '4' } 
                         : pedido
-                )
-            );
+                );
+            });
 
             notify("Entrega confirmada com sucesso!", "success");
             setStatusFiltro('4');
@@ -113,7 +118,9 @@ function MeusPedidosClient() {
         }
     };
 
-    const pedidosFiltrados = pedidos.filter(pedido => {
+    const pedidosLista = Array.isArray(pedidos) ? pedidos : [];
+
+    const pedidosFiltrados = pedidosLista.filter(pedido => {
         if (statusFiltro === 'all') return true;
         return pedido.status === statusFiltro;
     });
@@ -124,7 +131,7 @@ function MeusPedidosClient() {
                 <h2 className="h2 lg:hidden">Meus Pedidos</h2>
                 <section className="2xl:w-[58%] w-full 2xl:max-h-[700px] 2xl:overflow-y-auto 2xl:pr-1">
                     <LoadingContainer loading={loading}>
-                        {pedidos.length > 0 ? (
+                        {pedidosLista.length > 0 ? (
                             <>
                                 {/* --- ABAS DE FILTRO --- */}
                                 <div className="border-b border-gray-200 mb-6 overflow-x-auto">

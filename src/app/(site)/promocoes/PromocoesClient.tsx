@@ -17,8 +17,9 @@ export default function PromocoesClient() {
         setLoading(true);
         api.get("/promocoes/")
             .then(res => {
-                setProdutosOriginais(res.data);
-                setProdutosPromocoes(res.data);
+                const lista = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setProdutosOriginais(lista);
+                setProdutosPromocoes(lista);
             })
             .catch(err => console.error("Erro ao carregar promoções:", err))
             .finally(() => setLoading(false));

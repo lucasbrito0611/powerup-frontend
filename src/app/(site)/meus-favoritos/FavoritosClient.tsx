@@ -16,7 +16,10 @@ function FavoritosClient() {
 
     useEffect(() => {
         api.get("/favoritos/")
-            .then(res => setProdutos(res.data))
+            .then(res => {
+                const lista = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setProdutos(lista);
+            })
             .catch(err => console.error("Erro ao carregar favoritos:", err))
             .finally(() => setLoading(false));
     }, []);

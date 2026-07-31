@@ -21,7 +21,8 @@ function NotificacoesClient() {
         const fetchNotificacoes = async () => {
             try {
                 const response = await api.get('/notificacoes/');
-                setNotificacoes(response.data);
+                const lista = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+                setNotificacoes(lista);
                 
                 atualizarContador();
                 

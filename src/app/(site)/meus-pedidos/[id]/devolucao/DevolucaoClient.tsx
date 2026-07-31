@@ -233,7 +233,7 @@ function DevolucaoClient({ id }: { id: string }) {
                                                 <input
                                                     id="arquivo"
                                                     type="file"
-                                                    accept="image/*,video/*"
+                                                    accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
                                                     {...register("arquivo")}
                                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                                     onChange={(e) => {

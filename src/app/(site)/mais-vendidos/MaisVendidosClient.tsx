@@ -16,7 +16,8 @@ export default function MaisVendidosClient() {
     useEffect(() => {
         api.get('/produtos/mais_vendidos/')
             .then(response => {
-                setProdutos(response.data);
+                const lista = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+                setProdutos(lista);
             })
             .catch(err => console.error("Erro ao buscar histórico", err))
             .finally(() => setLoading(false));

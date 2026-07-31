@@ -4,9 +4,9 @@ import { List, FileClock, ThumbsUp, CircleDollarSign, XCircle, Ban } from 'lucid
 
 import FastAcess from "@/components/FastAcess";
 import PageWrapper from "@/components/layout/PageWrapper";
-import { Button } from "@/components/ui/button";
 import LoadingContainer from '@/components/loading/LoadingContainer';
 import CancelarDevolucaoModal from '@/components/modals/devolucao/CancelarDevolucaoModal';
+import DetalhesDevolucaoModal from '@/components/modals/devolucao/DetalhesDevolucaoModal';
 import { DevolucaoStatusType, DEVOLUCAO_STATUS_MAP, DevolucaoProps } from '@/types/devolucao';
 import { formatarData, formatarPreco } from "@/lib/utils";
 import withAuth from "@/lib/withAuth";
@@ -72,24 +72,30 @@ function DevolucoesClient() {
 
     useEffect(() => {
         api.get("/devolucoes/")
-            .then(res => setDevolucoes(res.data))
+            .then(res => {
+                const lista = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setDevolucoes(lista);
+            })
             .catch(err => console.error("Erro ao carregar devoluções:", err))
             .finally(() => setLoading(false));
     }, []);
 
     const handleDevolucaoCancelada = (devolucaoId: number) => {
-        setDevolucoes(currentDevolucoes =>
-            currentDevolucoes.map(devolucao =>
+        setDevolucoes(currentDevolucoes => {
+            const lista = Array.isArray(currentDevolucoes) ? currentDevolucoes : [];
+            return lista.map(devolucao =>
                 devolucao.id === devolucaoId
                     ? { ...devolucao, status: '5' }
                     : devolucao
-            )
-        );
+            );
+        });
 
         setStatusFiltro('5');
     };
 
-    const devolucoesFiltradas = devolucoes.filter(devolucao => {
+    const devolucoesLista = Array.isArray(devolucoes) ? devolucoes : [];
+
+    const devolucoesFiltradas = devolucoesLista.filter(devolucao => {
         if (statusFiltro === 'all') return true;
         return devolucao.status === statusFiltro;
     });
@@ -100,7 +106,7 @@ function DevolucoesClient() {
                 <h2 className="h2 lg:hidden">Minhas Devoluções</h2>
                 <section className="2xl:w-[61%] w-full 2xl:max-h-[700px] 2xl:overflow-y-auto 2xl:pr-1">
                     <LoadingContainer loading={loading}>
-                        {devolucoes.length > 0 ? (
+                        {devolucoesLista.length > 0 ? (
                             <>
                                 {/* --- ABAS DE FILTRO --- */}
                                 <div className="border-b border-gray-200 mb-6 overflow-x-auto">
@@ -177,9 +183,7 @@ function DevolucoesClient() {
 
                                                 {/* --- Coluna Ação (Botão) --- */}
                                                 <div className="text-center flex flex-col max-md:w-40 gap-3">
-                                                    <Button variant="submit" className="!py-1 max-md:py-5 !text-sm">
-                                                        Ver detalhes
-                                                    </Button>
+                                                    <DetalhesDevolucaoModal devolucao={devolucao} />
                                                     {devolucao.status === '1' && (
                                                         <CancelarDevolucaoModal devolucaoId={devolucao.id} onCancelSuccess={handleDevolucaoCancelada} />
                                                     )}

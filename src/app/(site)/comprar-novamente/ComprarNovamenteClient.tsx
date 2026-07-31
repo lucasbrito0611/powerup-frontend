@@ -17,7 +17,8 @@ function ComprarNovamenteClient() {
     useEffect(() => {
         api.get('/produtos/comprar_novamente/')
             .then(response => {
-                setProdutos(response.data);
+                const lista = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+                setProdutos(lista);
             })
             .catch(err => console.error("Erro ao buscar histórico", err))
             .finally(() => setLoading(false));

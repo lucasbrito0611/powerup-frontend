@@ -9,13 +9,15 @@ export const DEVOLUCAO_STATUS_MAP: Record<DevolucaoStatusType, string> = {
 
 export interface ItemDevolvidoProps {
     id: number;
-    pedido_item: number; 
+    pedido_item: number;
+    produto_nome: string;
     quantidade: number;
 }
 
 export interface DevolucaoProps {
     id: number;
     pedido_id: number;
+    user_nome: string;
     status: DevolucaoStatusType;
     status_display: string;
     motivo: string;
@@ -28,4 +30,19 @@ export interface DevolucaoProps {
 export interface CancelarDevolucaoProps {
     devolucaoId?: number;
     onCancelSuccess: (devolucaoId: number) => void; 
+}
+
+// ─── Interfaces para os modais do painel administrativo ───────────────────────
+export interface AdminDetalhesDevolucaoModalProps {
+    devolucao: DevolucaoProps;
+}
+
+export interface AdminEditDevolucaoModalProps {
+    devolucao: DevolucaoProps;
+    className?: string;
+}
+
+export interface AdminExcluirDevolucaoModalProps {
+    devolucaoId: number;
+    className?: string;
 }

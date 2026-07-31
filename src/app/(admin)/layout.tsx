@@ -53,7 +53,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             {
                                 name: "produtos",
                                 list: "/admin/produtos",
-                            }
+                            },
+                            {
+                                name: "devolucoes",
+                                list: "/admin/devolucoes",
+                            },
                         ]}
                     >
                         {children}

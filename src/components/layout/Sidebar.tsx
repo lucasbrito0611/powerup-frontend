@@ -10,7 +10,7 @@ import { BsFillLightningChargeFill, BsBasket3Fill } from "react-icons/bs";
 import { FaTrophy } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { BiSolidUser } from "react-icons/bi";
-import { MdInventory2 } from "react-icons/md";
+import { MdInventory2, MdAssignmentReturn } from "react-icons/md";
 import { LuPackage } from "react-icons/lu";
 
 import logo from '../../../public/Logo-preta-longa.webp';
@@ -51,6 +51,7 @@ const Sidebar = () => {
                                 <NavLink href="/admin/produtos" icon={<MdInventory2 size={24} />} name="Produtos" />
                                 <NavLink href="/admin/lotes" icon={<LuPackage size={24} />} name="Lotes" />
                                 <NavLink href="/admin/pedidos" icon={<BsBasket3Fill size={24} />} name="Pedidos" />
+                                <NavLink href="/admin/devolucoes" icon={<MdAssignmentReturn size={24} />} name="Devoluções" />
                                 <NavLink href="/admin/perfil" icon={<BiSolidUser size={24} />} name="Meu Perfil" />
                             </ul>
                         )}

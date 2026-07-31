@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+const ALLOWED_TYPES_DEVOLUCAO = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "video/mp4",
+    "video/quicktime", // .mov
+    "video/webm",
+];
+
+const MAX_SIZE_DEVOLUCAO = 50 * 1024 * 1024; // 50MB
+
 export const devolucaoSchema = z.object({
   motivo: z
     .string()
@@ -10,6 +21,14 @@ export const devolucaoSchema = z.object({
     .custom<FileList>((val) => val instanceof FileList, {
       message: "Arquivo inválido",
     })
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_SIZE_DEVOLUCAO,
+      { message: "Arquivo muito grande. Máximo 50MB." }
+    )
+    .refine(
+      (files) => !files || files.length === 0 || ALLOWED_TYPES_DEVOLUCAO.includes(files[0].type),
+      { message: "Tipo não permitido. Envie uma foto (JPG, PNG, WEBP) ou vídeo (MP4, MOV, WEBM)." }
+    )
     .optional(),
 
   itens: z
