@@ -13,7 +13,12 @@ export const dataProvider = {
   getList: async (params: any) => {
     try {
       const { resource, pagination, filters, sorters } = params;
-      const url = `/${resource}/`;
+
+      // Mapeamento de recursos com rotas não-convencionais
+      const RESOURCE_URL_MAP: Record<string, string> = {
+        notificacoes_admin: '/notificacoes/admin/',
+      };
+      const url = RESOURCE_URL_MAP[resource] ?? `/${resource}/`;
       
       const query = new URLSearchParams();
 

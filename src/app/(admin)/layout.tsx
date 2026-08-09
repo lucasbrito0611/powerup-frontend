@@ -58,6 +58,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 name: "devolucoes",
                                 list: "/admin/devolucoes",
                             },
+                            {
+                                name: "notificacoes_admin",
+                                list: "/admin/notificacoes",
+                            },
+                            {
+                                name: "notificacoes",
+                            },
                         ]}
                     >
                         {children}
