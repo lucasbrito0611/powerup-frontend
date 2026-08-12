@@ -12,7 +12,6 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { notify } from "@/lib/toast";
 import { criarNotificacaoSchema, CriarNotificacaoSchemaType } from "@/schemas/criarNotificacaoSchema";
 import LoadingContainer from "@/components/loading/LoadingContainer";
-import RichTextEditor from "@/components/ui/RichTextEditor";
 
 interface ClienteProps {
     id: number;
@@ -263,18 +262,13 @@ export default function CriarNotificacaoModal({ className, onSuccess }: CriarNot
                             {errors.titulo && <p className="text-red-500 text-sm">{errors.titulo.message}</p>}
                         </label>
 
-                        {/* ── Texto (Rich Text) ── */}
+                        {/* ── Texto ── */}
                         <label className="flex flex-col gap-1 sm:text-base">
                             <strong>Texto:*</strong>
-                            <Controller
-                                name="texto"
-                                control={control}
-                                render={({ field }) => (
-                                    <RichTextEditor
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                            <textarea
+                                {...register("texto")}
+                                placeholder="Texto da notificação"
+                                className="input min-h-[100px] p-3 resize-y"
                             />
                             {errors.texto && <p className="text-red-500 text-sm">{errors.texto.message}</p>}
                         </label>

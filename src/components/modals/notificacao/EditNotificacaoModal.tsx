@@ -11,7 +11,6 @@ import { useUpdate } from "@refinedev/core";
 import { notify } from "@/lib/toast";
 import { editNotificacaoSchema, EditNotificacaoSchemaType } from "@/schemas/editNotificacaoSchema";
 import LoadingContainer from "@/components/loading/LoadingContainer";
-import RichTextEditor from "@/components/ui/RichTextEditor";
 
 const CATEGORIAS = [
     { value: 'status_pedido',           label: 'Status do Pedido' },
@@ -113,15 +112,10 @@ export default function EditNotificacaoModal({ notificacao, className, onSuccess
 
                         <label className="flex flex-col gap-1 sm:text-base">
                             <strong>Texto:*</strong>
-                            <Controller
-                                name="texto"
-                                control={control}
-                                render={({ field }) => (
-                                    <RichTextEditor
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                            <textarea
+                                {...register("texto")}
+                                placeholder="Texto da notificação"
+                                className="input min-h-[100px] p-3 resize-y"
                             />
                             {errors.texto && <p className="text-red-500 text-sm">{errors.texto.message}</p>}
                         </label>

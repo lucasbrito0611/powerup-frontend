@@ -17,6 +17,7 @@ import { formatarData } from "@/lib/utils";
 import EditNotificacaoModal from "@/components/modals/notificacao/EditNotificacaoModal";
 import ExcluirNotificacaoModal from "@/components/modals/notificacao/ExcluirNotificacaoModal";
 import CriarNotificacaoModal from "@/components/modals/notificacao/CriarNotificacaoModal";
+import CategoriaNotificacaoStyle from "@/components/notificacao/CategoriaNotificacaoStyle";
 
 interface NotificacaoAdmin {
     id: number;
@@ -74,16 +75,19 @@ export default function NotificacoesAdmin() {
     const columns = useMemo<ColumnDef<NotificacaoAdmin>[]>(() => [
         { accessorKey: "id",                header: "ID" },
         { accessorKey: "cliente_nome",      header: "Cliente",    cell: ({ getValue }) => getValue() ?? "—" },
-        { accessorKey: "categoria_display", header: "Categoria" },
+        { 
+            accessorKey: "categoria_display", 
+            header: "Categoria",
+            cell: ({ row }) => <CategoriaNotificacaoStyle categoria={row.original.categoria} showLabel />
+        },
         { accessorKey: "titulo",            header: "Título" },
         {
             accessorKey: "texto",
             header: "Texto",
             cell: ({ getValue }) => (
-                <span
-                    className="line-clamp-2 text-sm max-w-xs block text-left"
-                    dangerouslySetInnerHTML={{ __html: getValue() as string }}
-                />
+                <span className="line-clamp-2 text-sm max-w-xs block text-left">
+                    {getValue() as string}
+                </span>
             ),
         },
         {
@@ -248,10 +252,9 @@ export default function NotificacoesAdmin() {
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-gray-500">Texto:</span>
-                                            <span
-                                                className="text-gray-700 text-xs line-clamp-3"
-                                                dangerouslySetInnerHTML={{ __html: n.texto }}
-                                            />
+                                            <span className="text-gray-700 text-xs line-clamp-3">
+                                                {n.texto}
+                                            </span>
                                         </div>
                                     </div>
 
