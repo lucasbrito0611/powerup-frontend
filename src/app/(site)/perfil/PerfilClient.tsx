@@ -82,7 +82,6 @@ function PerfilClient() {
             };
 
             setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
 
             reset({
                 nome: updatedUser.nome,

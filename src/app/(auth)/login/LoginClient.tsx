@@ -51,8 +51,11 @@ export default function LoginClient() {
             
             notify(`Bem-vindo, ${novoUsuario.nome}!`, "success");
 
+            const defaultRedirect = novoUsuario.perfil === 'admin' ? "/admin" : "/";
+            const target = redirect || defaultRedirect;
+
             setTimeout(() => {
-                redirect ? router.push(redirect) : router.push("/")
+                router.push(target);
             }, 1000);
 
         } catch (error: any) {
@@ -86,8 +89,11 @@ export default function LoginClient() {
 
             notify(`Bem-vindo, ${novoUsuario.nome}!`, "success");
 
+            const defaultRedirect = novoUsuario.perfil === 'admin' ? "/admin" : "/";
+            const target = redirect || defaultRedirect;
+
             setTimeout(() => {
-                window.location.href = redirect ?? "/";
+                window.location.href = target;
             }, 1000);
 
         } catch (error: any) {

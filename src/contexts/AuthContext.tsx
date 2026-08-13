@@ -35,13 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = (userData: User) => {
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
     };
 
     const logout = async (showMessage = true) => {
         setIsLoggingOut(true);
         setUser(null);
-        localStorage.removeItem('user');
 
         try {
             await api.post('/logout/');
