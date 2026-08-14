@@ -26,16 +26,24 @@ const ItemCard = ({ item, pageName, statusPedido }: ItemCardProps) => {
     };
 
     // APENAS PARA CARRINHO
+    const estoqueDisponivel = item.produto.estoque;
+    const isMaxEstoque = estoqueDisponivel !== undefined && estoqueDisponivel !== null && item.quantidade >= estoqueDisponivel;
+
     const handleUpdateQuantidade = async (novaQuantidade: number) => {
         if (novaQuantidade < 1) {
             notify("A quantidade mínima é 1", "warning");
             return;
-        };
+        }
+        if (estoqueDisponivel !== undefined && estoqueDisponivel !== null && novaQuantidade > estoqueDisponivel) {
+            notify(`Você atingiu o estoque máximo disponível deste produto (${estoqueDisponivel} un.).`, "warning");
+            return;
+        }
         try {
             await updateQuantidade(item, novaQuantidade);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao atualizar quantidade:", error);
-            notify("Erro ao atualizar quantidade.", "error");
+            const msg = error.response?.data?.erro || error.response?.data?.detail || "Erro ao atualizar quantidade.";
+            notify(msg, "error");
         }
     };
 
@@ -57,13 +65,13 @@ const ItemCard = ({ item, pageName, statusPedido }: ItemCardProps) => {
                     <p className="font-bold sm:text-lg">Preço: <span className="font-medium">{formatarPreco(item.produto.preco_calculado)}</span></p>
 
                     {pageName === "carrinho" ? (
-                        <div className="font-bold sm:text-lg flex items-center gap-3">
+                        <div className="font-bold sm:text-lg flex flex-wrap items-center gap-3">
                             <span>Quantidade:</span>
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={() => handleUpdateQuantidade(item.quantidade - 1)}
                                     disabled={isLoading}
-                                    className="p-1 bg-gray-200 rounded-full disabled:opacity-50 cursor-pointer"
+                                    className="p-1 bg-gray-200 rounded-full disabled:opacity-50 cursor-pointer hover:bg-gray-300 transition-colors"
                                 >
                                     <Minus size={16} />
                                 </button>
@@ -71,11 +79,21 @@ const ItemCard = ({ item, pageName, statusPedido }: ItemCardProps) => {
                                 <button 
                                     onClick={() => handleUpdateQuantidade(item.quantidade + 1)}
                                     disabled={isLoading}
-                                    className="p-1 bg-gray-200 rounded-full disabled:opacity-50 cursor-pointer"
+                                    className={`p-1 rounded-full transition-colors cursor-pointer ${
+                                        isMaxEstoque 
+                                            ? "bg-amber-100 text-amber-700 hover:bg-amber-200" 
+                                            : "bg-gray-200 hover:bg-gray-300"
+                                    } disabled:opacity-50`}
+                                    title={isMaxEstoque ? `Estoque máximo atingido (${estoqueDisponivel} un.)` : "Aumentar quantidade"}
                                 >
                                     <Plus size={16} />
                                 </button>
                             </div>
+                            {isMaxEstoque && (
+                                <span className="text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                    Máx. no estoque ({estoqueDisponivel} un.)
+                                </span>
+                            )}
                         </div>
                     ) : (
                         <p className="font-bold sm:text-lg">Quantidade: <span className="font-medium">{item.quantidade}</span></p>

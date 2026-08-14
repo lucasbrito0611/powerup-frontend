@@ -31,7 +31,10 @@ export default function RedefinirSenhaModal() {
                 const data = error.response.data as Record<string, any>;
 
                 const message =
+                    data.errors?.[0] ??
                     data.non_field_errors?.[0] ??
+                    data.nova_senha?.[0] ??
+                    data.detail ??
                     (Array.isArray(Object.values(data)[0])
                         ? Object.values(data)[0][0]
                         : Object.values(data)[0]) ??

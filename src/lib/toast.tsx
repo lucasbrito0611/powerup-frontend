@@ -33,10 +33,11 @@ const iconMap: Record<Variant, React.ReactNode> = {
   warning: <AlertTriangle className="w-5 h-5 text-black" />,
 };
 
-export function notify(message: string, variant: Variant = "info") {
-  toast(message, {
+export function notify(message: string | string[], variant: Variant = "info") {
+  const displayMsg = Array.isArray(message) ? message.join(" ") : message;
+  toast(displayMsg, {
     icon: iconMap[variant],
     style: styleMap[variant],
-    duration: variant === "success" ? 2000 : 2500,
+    duration: variant === "success" ? 2000 : 3500,
   });
 }

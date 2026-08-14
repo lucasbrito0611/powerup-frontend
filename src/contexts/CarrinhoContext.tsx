@@ -172,8 +172,10 @@ export const CarrinhoProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
             console.error("Falha ao atualizar quantidade:", error);
             throw error; 
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false });
         }
-    }, [isLogged, carregarCarrinho, removeItem]); 
+    }, [isLogged, carregarCarrinho]); 
 
     const value = {
         ...state,

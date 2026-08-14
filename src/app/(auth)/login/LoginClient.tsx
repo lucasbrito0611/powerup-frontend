@@ -60,7 +60,8 @@ export default function LoginClient() {
 
         } catch (error: any) {
             console.error("Erro ao fazer login:", error.response?.data || error.message);
-            notify("Email ou senha incorretos.", "error");
+            const msg = error.response?.data?.errors?.[0] || error.response?.data?.detail || "Email ou senha incorretos.";
+            notify(msg, "error");
         }
     };
 
@@ -98,7 +99,8 @@ export default function LoginClient() {
 
         } catch (error: any) {
             console.error("Erro no login com Google:", error.response?.data || error.message);
-            notify("Não foi possível entrar com o Google. Tente novamente.", "error");
+            const msg = error.response?.data?.errors?.[0] || error.response?.data?.detail || "Não foi possível entrar com o Google. Tente novamente.";
+            notify(msg, "error");
         }
     };
 
