@@ -1,5 +1,9 @@
-"use client";
-
+import { 
+  DataProvider, 
+  CrudFilters, 
+  CrudSorting, 
+  Pagination 
+} from "@refinedev/core";
 import dataProviderSimpleRest from "@refinedev/simple-rest";
 import api from "@/services/api";
 
@@ -7,13 +11,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const baseProvider = dataProviderSimpleRest(API_URL, api);
 
-export const dataProvider = {
+export const dataProvider: DataProvider = {
   ...baseProvider,
   
-  getList: async (params: any) => {
+  getList: async ({ resource, pagination, filters, sorters }: {
+    resource: string;
+    pagination?: Pagination;
+    filters?: CrudFilters;
+    sorters?: CrudSorting;
+  }) => {
     try {
-      const { resource, pagination, filters, sorters } = params;
-
       // Mapeamento de recursos com rotas não-convencionais
       const RESOURCE_URL_MAP: Record<string, string> = {
         notificacoes_admin: '/notificacoes/admin/',
@@ -34,7 +41,7 @@ export const dataProvider = {
 
       // Ordenação
       if (sorters && sorters.length > 0) {
-        const orderParam = sorters.map((s: any) => {
+        const orderParam = sorters.map((s) => {
           return s.order === "desc" ? `-${s.field}` : s.field;
         }).join(",");
         query.append("ordering", orderParam);
@@ -42,11 +49,13 @@ export const dataProvider = {
 
       // Busca e Filtros Exatos
       if (filters && filters.length > 0) {
-        filters.forEach((f: any) => {
-          if (f.field === "search" || f.field === "q") {
-            query.append("search", f.value);
-          } else if (f.operator === "eq") {
-            query.append(f.field, f.value);
+        filters.forEach((f) => {
+          if ('field' in f) {
+            if (f.field === "search" || f.field === "q") {
+              query.append("search", String(f.value));
+            } else if (f.operator === "eq") {
+              query.append(f.field, String(f.value));
+            }
           }
         });
       }
@@ -61,21 +70,18 @@ export const dataProvider = {
         total: isPaginated ? data.count : data.length,
       };
     } catch (error) {
-      console.error(`Erro no getList do Refine para ${params.resource}`, error);
+      console.error(`Erro no getList do Refine para ${resource}`, error);
       throw error;
     }
   },
 
-  getOne: async (params: any) => {
-    const { resource, id } = params;
+  getOne: async ({ resource, id }) => {
     const url = `/${resource}/${id}/`;
-     
     const { data } = await api.get(url);
     return { data };
   },
 
-  create: async (params: any) => {
-    const { resource, variables } = params;
+  create: async ({ resource, variables }) => {
     const url = `/${resource}/`;
 
     // Se for FormData (ex: upload de imagem), usa multipart; senão, JSON normal
@@ -86,8 +92,7 @@ export const dataProvider = {
     return { data };
   },
 
-  update: async (params: any) => {
-    const { resource, id, variables } = params;
+  update: async ({ resource, id, variables }) => {
     const url = `/${resource}/${id}/`;
     
     // Se for FormData (ex: upload de imagem), usa multipart; senão, JSON normal
@@ -98,11 +103,12 @@ export const dataProvider = {
     return { data };
   },
 
-  deleteOne: async (params: any) => {
-    const { resource, id, variables } = params;
+  deleteOne: async ({ resource, id, variables }) => {
     const url = `/${resource}/${id}/`;
     
     const { data } = await api.delete(url, { data: variables });
     return { data };
-  }
+  },
+
+  getApiUrl: () => API_URL,
 };

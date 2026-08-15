@@ -13,7 +13,7 @@ const getLocalCarrinho = (): CarrinhoItemProps[] => {
     try {
         const localData = localStorage.getItem(LOCAL_CARRINHO_KEY);
         return localData ? JSON.parse(localData) : [];
-    } catch (error) {
+    } catch {
         return [];
     }
 };
@@ -185,7 +185,7 @@ export const CarrinhoProvider = ({ children }: { children: ReactNode }) => {
         limparCarrinho: () => {
             try {
                 saveLocalCarrinho([]);
-            } catch (e) {
+            } catch {
                 // ignore
             }
             dispatch({ type: 'LIMPAR_CARRINHO' });

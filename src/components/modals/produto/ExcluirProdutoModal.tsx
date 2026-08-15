@@ -58,7 +58,7 @@ export default function ExcluirProdutoModal({ produtoId, nomeProduto, className 
 
                 <div className="flex flex-col items-center gap-5 px-10 text-center tb:text-xl text-lg font-semibold">
                     <div>
-                        <p>Deseja realmente excluir <strong>"{nomeProduto}"</strong>?</p>
+                        <p>Deseja realmente excluir <strong>&quot;{nomeProduto}&quot;</strong>?</p>
                         <strong>Essa é uma ação permanente.</strong>
                     </div>
                     <RiAlertFill size={60} />

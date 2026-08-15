@@ -60,7 +60,7 @@ export default function ExcluirLoteModal({ lote, className, onSuccess }: Excluir
 
                 <div className="flex flex-col items-center gap-5 px-10 text-center tb:text-xl text-lg font-semibold">
                     <div>
-                        <p>Deseja realmente excluir o lote de <strong>"{lote.produto_nome}"</strong>?</p>
+                        <p>Deseja realmente excluir o lote de <strong>&quot;{lote.produto_nome}&quot;</strong>?</p>
                         <strong>Essa é uma ação permanente.</strong>
                     </div>
                     <RiAlertFill size={60} />

@@ -12,7 +12,7 @@ export const authProvider: AuthProvider = {
         success: true,
         redirectTo: "/admin",
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: {
@@ -39,7 +39,7 @@ export const authProvider: AuthProvider = {
       return {
         authenticated: true,
       };
-    } catch (error) {
+    } catch {
       return {
         authenticated: false,
         redirectTo: "/",
@@ -51,16 +51,17 @@ export const authProvider: AuthProvider = {
     try {
       const { data } = await api.get("/me/");
       return data;
-    } catch (error) {
+    } catch {
       return null;
     }
   },
-  onError: async (error: any) => {
-    if (error.response?.status === 401) {
+  onError: async (error: unknown) => {
+    const err = error as { response?: { status?: number } };
+    if (err?.response?.status === 401) {
       return {
         logout: true,
       };
     }
-    return { error };
+    return { error: error as Error };
   },
 };
