@@ -9,6 +9,7 @@ import { cadastroSchema, CadastroSchemaType } from "@/schemas/cadastroSchema";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/lib/toast";
 import api from "@/services/api";
+import { maskCPF, maskPhone } from "@/lib/utils";
 
 export default function CadastroClient() {
     const router = useRouter();
@@ -74,12 +75,34 @@ export default function CadastroClient() {
                             <div className="w-full flex flex-col md:flex-row md:space-x-24 space-y-6 md:space-y-0 items-start">
                                 <div className="flex flex-col gap-2 w-full md:w-1/2">
                                     <label htmlFor="cpf" className="font-semibold mb-lg:text-lg whitespace-nowrap">CPF</label>
-                                    <input {...register("cpf")} type="text" id="cpf" placeholder="Digite seu CPF" className="input px-3 py-2.5 rounded-md w-full" />
+                                    <input
+                                        {...register("cpf", {
+                                            onChange: (e) => {
+                                                e.target.value = maskCPF(e.target.value);
+                                            }
+                                        })}
+                                        type="text"
+                                        id="cpf"
+                                        maxLength={14}
+                                        placeholder="000.000.000-00"
+                                        className="input px-3 py-2.5 rounded-md w-full"
+                                    />
                                 </div>
 
                                 <div className="flex flex-col gap-2 w-full md:w-1/2">
                                     <label htmlFor="telefone" className="font-semibold mb-lg:text-lg whitespace-nowrap">TELEFONE CELULAR</label>
-                                    <input {...register("telefone")} type="text" id="telefone" placeholder="Digite seu telefone celular" className="input px-3 py-2.5 rounded-md w-full" />
+                                    <input
+                                        {...register("telefone", {
+                                            onChange: (e) => {
+                                                e.target.value = maskPhone(e.target.value);
+                                            }
+                                        })}
+                                        type="text"
+                                        id="telefone"
+                                        maxLength={15}
+                                        placeholder="(00) 00000-0000"
+                                        className="input px-3 py-2.5 rounded-md w-full"
+                                    />
                                 </div>
                             </div>
 

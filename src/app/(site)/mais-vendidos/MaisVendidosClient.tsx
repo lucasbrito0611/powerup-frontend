@@ -29,22 +29,24 @@ export default function MaisVendidosClient() {
 
     return (
         <PageWrapper pageName="Mais Vendidos">
-            {produtos.length > 0 ? (
-                <>
-                    <h2 className="h2 lg:hidden">Meus Favoritos</h2>
+            <section className="space-y-10">
+                <h2 className="h2 lg:hidden">Mais Vendidos</h2>
+                {produtos.length > 0 && (
                     <Filter produtos={produtos} onChange={setProdutosOrdenados} />
+                )}
 
-                    <LoadingContainer loading={loading}>
+                <LoadingContainer loading={loading}>
+                    {produtosOrdenados.length > 0 ? (
                         <div className="productsContainer">
                             {produtosOrdenados.map(produto => (
                                 <ProductCard key={produto.id} product={produto} />
                             ))}
                         </div>
-                    </LoadingContainer>
-                </>
-            ) : (
-                <p className="notFound">Nenhuma venda realizada.</p>
-            )}
+                    ) : (
+                        <p className="notFound">Nenhuma venda realizada.</p>
+                    )}
+                </LoadingContainer>
+            </section>
         </PageWrapper>
     );
 }

@@ -6,11 +6,21 @@ export const cadastroSchema = z
     email: z.email("Email inválido"),
     cpf: z
         .string()
-        .min(1, "O CPF é obrigatório"),
+        .min(1, "O CPF é obrigatório")
+        .refine(
+            (val) => val.replace(/\D/g, '').length === 11,
+            "O CPF deve conter 11 dígitos"
+        ),
     telefone: z
         .string()
-        .min(8, "O telefone deve ter no mínimo 8 caracteres")
-        .max(15, "O telefone deve ter no máximo 15 caracteres"),
+        .min(1, "O telefone é obrigatório")
+        .refine(
+            (val) => {
+                const len = val.replace(/\D/g, '').length;
+                return len >= 10 && len <= 11;
+            },
+            "O telefone deve ter DDD e no mínimo 10 dígitos"
+        ),
     senha: z
         .string()
         .min(8, "A senha deve ter no mínimo 8 caracteres"),

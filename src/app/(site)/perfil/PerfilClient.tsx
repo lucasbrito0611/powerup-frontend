@@ -14,6 +14,7 @@ import { notify } from "@/lib/toast";
 import api from "@/services/api";
 import { editPerfilSchema, EditPerfilSchemaType } from "@/schemas/editPerfilSchema";
 import RedefinirSenhaModal from "@/components/modals/RedefinirSenhaModal";
+import { maskCPF, maskPhone } from "@/lib/utils";
 
 function PerfilClient() {
     const { user, setUser } = useAuth();
@@ -24,8 +25,8 @@ function PerfilClient() {
         defaultValues: {
             nome: user?.nome || "",
             email: user?.email || "",
-            cpf: user?.cpf || "",
-            telefone_celular: user?.telefone || "",
+            cpf: maskCPF(user?.cpf || ""),
+            telefone_celular: maskPhone(user?.telefone || ""),
         }
     })
 
@@ -43,8 +44,8 @@ function PerfilClient() {
                 reset({
                     nome: response.data.nome,
                     email: response.data.user?.email || user.email,
-                    cpf: response.data.cpf || "",
-                    telefone_celular: response.data.telefone_celular || "",
+                    cpf: maskCPF(response.data.cpf || ""),
+                    telefone_celular: maskPhone(response.data.telefone_celular || ""),
                 });
             } catch (error) {
                 console.error("Erro ao carregar dados do perfil:", error);
@@ -86,8 +87,8 @@ function PerfilClient() {
             reset({
                 nome: updatedUser.nome,
                 email: updatedUser.email,
-                cpf: updatedUser.cpf,
-                telefone_celular: updatedUser.telefone,
+                cpf: maskCPF(updatedUser.cpf || ""),
+                telefone_celular: maskPhone(updatedUser.telefone || ""),
             });
 
             notify("Dados atualizados com sucesso!", "success");
@@ -135,7 +136,18 @@ function PerfilClient() {
                             <label htmlFor="cpf" className="mb-lg:w-3/5 sm:text-lg">
                                 <div className="flex items-center space-x-2">
                                     <strong>CPF:</strong>
-                                    <input {...register("cpf")} type="text" id="cpf" className="input w-full" />
+                                    <input
+                                        {...register("cpf", {
+                                            onChange: (e) => {
+                                                e.target.value = maskCPF(e.target.value);
+                                            }
+                                        })}
+                                        type="text"
+                                        id="cpf"
+                                        maxLength={14}
+                                        placeholder="000.000.000-00"
+                                        className="input w-full"
+                                    />
                                 </div>
                                 {errors.cpf && (
                                     <span className="text-red-500 text-sm mt-1 leading-1">
@@ -146,7 +158,18 @@ function PerfilClient() {
                             <label htmlFor="telefone_celular" className="mb-lg:w-3/4 sm:text-lg">
                                 <div className="flex items-center space-x-2">
                                     <strong>Telefone:</strong>
-                                    <input {...register("telefone_celular")} type="text" id="telefone_celular" className="input w-full" />
+                                    <input
+                                        {...register("telefone_celular", {
+                                            onChange: (e) => {
+                                                e.target.value = maskPhone(e.target.value);
+                                            }
+                                        })}
+                                        type="text"
+                                        id="telefone_celular"
+                                        maxLength={15}
+                                        placeholder="(00) 00000-0000"
+                                        className="input w-full"
+                                    />
                                 </div>
                                 {errors.telefone_celular && (
                                     <span className="text-red-500 text-sm mt-1 leading-1">

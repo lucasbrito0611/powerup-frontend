@@ -11,7 +11,7 @@ export function ProdutosProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/produtos/?page_size=9999')
+    api.get('/produtos/?page_size=100')
       .then(response => {
         const data = response.data;
         setProdutos(Array.isArray(data) ? data : (data.results ?? []));

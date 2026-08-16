@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { FaMagnifyingGlass, FaBottleWater, FaShirt } from "react-icons/fa6";
 import { BsFillLightningChargeFill } from "react-icons/bs";
@@ -11,44 +12,87 @@ import { FaChevronDown } from "react-icons/fa";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Category from "@/components/Category";
 import ProductCard from "@/components/ProductCard";
-import { useProdutos } from '@/contexts/ProductContext';
 import { ProductProps } from '@/types/products';
 import PageWrapper from '@/components/layout/PageWrapper';
 import LoadingContainer from '@/components/loading/LoadingContainer';
+import api from '@/services/api';
 
 export default function HomeClient() {
-    const { produtos, loading } = useProdutos();
-    const produtos_promocoes = produtos.filter(produto => produto.porcentagem_desconto > 0)
+    const [promocoes, setPromocoes] = useState<ProductProps[]>([]);
+    const [maisVendidos, setMaisVendidos] = useState<ProductProps[]>([]);
+    const [loadingHome, setLoadingHome] = useState(true);
+
     const [pesquisarProduto, setPesquisarProduto] = useState('');
     const [resultado, setResultado] = useState<ProductProps[]>([]);
     const [showResults, setShowResults] = useState(false);
+    const [loadingSearch, setLoadingSearch] = useState(false);
 
-    const handleSearch = (e: React.FormEvent) => {
+    useEffect(() => {
+        let isMounted = true;
+        setLoadingHome(true);
+
+        Promise.all([
+            api.get('/promocoes/?limit=5').catch(() => ({ data: [] })),
+            api.get('/produtos/mais_vendidos/?limit=5').catch(() => ({ data: [] })),
+        ])
+            .then(([promocoesRes, maisVendidosRes]) => {
+                if (!isMounted) return;
+
+                const listaPromocoes = Array.isArray(promocoesRes.data)
+                    ? promocoesRes.data
+                    : (promocoesRes.data?.results || []);
+
+                const listaMaisVendidos = Array.isArray(maisVendidosRes.data)
+                    ? maisVendidosRes.data
+                    : (maisVendidosRes.data?.results || []);
+
+                setPromocoes(listaPromocoes.slice(0, 5));
+                setMaisVendidos(listaMaisVendidos.slice(0, 5));
+            })
+            .catch(err => {
+                console.error("Erro ao carregar dados da Home:", err);
+            })
+            .finally(() => {
+                if (isMounted) setLoadingHome(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const removeAcentos = (texto: string) =>
-            texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-        const pesquisa = removeAcentos(pesquisarProduto.toLowerCase().trim());
-
-        setResultado([]);
+        const pesquisa = pesquisarProduto.trim();
 
         if (pesquisa === '') {
             setShowResults(false);
+            setResultado([]);
             return;
         }
 
-        const resultados = produtos.filter(produto =>
-            removeAcentos(produto.nome.toLowerCase()).includes(pesquisa)
-        );
-
-        setResultado(resultados);
+        setLoadingSearch(true);
         setShowResults(true);
+
+        try {
+            const response = await api.get(`/produtos/?search=${encodeURIComponent(pesquisa)}`);
+            const lista = Array.isArray(response.data)
+                ? response.data
+                : (response.data?.results || []);
+            setResultado(lista);
+        } catch (err) {
+            console.error("Erro ao buscar produtos:", err);
+            setResultado([]);
+        } finally {
+            setLoadingSearch(false);
+        }
     };
 
     useEffect(() => {
-        if (pesquisarProduto === '') {
+        if (pesquisarProduto.trim() === '') {
             setShowResults(false);
+            setResultado([]);
         }
     }, [pesquisarProduto]);
 
@@ -78,7 +122,7 @@ export default function HomeClient() {
                 // SEÇÃO DO RESULTADO DA PESQUISA 
                 <section className="space-y-8 mt-2">
                     <p className='text-dark-grey text-xl font-medium'>Produtos encontrados: {resultado.length}</p>
-                    <LoadingContainer loading={loading}>
+                    <LoadingContainer loading={loadingSearch}>
                         {resultado.length > 0 ? (
                             <div className="productsContainer">
                                 {resultado.map(produto => (
@@ -122,18 +166,18 @@ export default function HomeClient() {
                             </div>
                         </section>
 
-                        {produtos_promocoes.length > 0 && (
+                        {promocoes.length > 0 && (
                             <section className="space-y-8">
                                 <div className="flex justify-between items-center">
                                     <h2 className="h2">Ofertas Especiais</h2>
-                                    <a href="/promocoes" className="group flex items-center gap-2">
+                                    <Link href="/promocoes" className="group flex items-center gap-2">
                                         <p className="font-bold tb:text-lg">Ver mais</p>
                                         <FaChevronDown className="text-green text-lg mb-lg:text-xl rotate-180-smooth" />
-                                    </a>
+                                    </Link>
                                 </div>
-                                <LoadingContainer loading={loading}>
+                                <LoadingContainer loading={loadingHome}>
                                     <div className="productsContainer">
-                                        {produtos_promocoes.slice(0, 5).map(produto =>
+                                        {promocoes.map(produto =>
                                             <ProductCard key={produto.id} product={produto} />
                                         )}
                                     </div>
@@ -144,17 +188,21 @@ export default function HomeClient() {
                         <section className="space-y-8">
                             <div className="flex justify-between items-center">
                                 <h2 className="h2">Mais Vendidos</h2>
-                                <a href="/promocoes" className="group flex items-center gap-2">
+                                <Link href="/mais-vendidos" className="group flex items-center gap-2">
                                     <p className="font-bold tb:text-lg">Ver mais</p>
                                     <FaChevronDown className="text-green text-lg mb-lg:text-xl rotate-180-smooth" />
-                                </a>
+                                </Link>
                             </div>
-                            <LoadingContainer loading={loading}>
-                                <div className="productsContainer">
-                                    {produtos.slice(0, 5).map(produto => (
-                                        <ProductCard key={produto.id} product={produto} />
-                                    ))}
-                                </div>
+                            <LoadingContainer loading={loadingHome}>
+                                {maisVendidos.length > 0 ? (
+                                    <div className="productsContainer">
+                                        {maisVendidos.map(produto => (
+                                            <ProductCard key={produto.id} product={produto} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="notFound">Nenhum produto encontrado.</p>
+                                )}
                             </LoadingContainer>
                         </section>
                     </div>

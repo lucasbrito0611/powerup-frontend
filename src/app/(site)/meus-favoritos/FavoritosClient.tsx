@@ -30,12 +30,14 @@ function FavoritosClient() {
 
     return (
         <PageWrapper pageName="Meus Favoritos">
-            {produtos.length > 0 ? (
-                <>
-                    <h2 className="h2 lg:hidden">Meus Favoritos</h2>
+            <section className="space-y-10">
+                <h2 className="h2 lg:hidden">Meus Favoritos</h2>
+                {produtos.length > 0 && (
                     <Filter produtos={produtos} onChange={setProdutosOrdenados} />
+                )}
 
-                    <LoadingContainer loading={loading}>
+                <LoadingContainer loading={loading}>
+                    {produtosOrdenados.length > 0 ? (
                         <div className="productsContainer">
                             {produtosOrdenados.map(produto => (
                                 <ProductCard
@@ -50,11 +52,11 @@ function FavoritosClient() {
                                 />
                             ))}
                         </div>
-                    </LoadingContainer>
-                </>
-            ) : (
-                <p className="notFound">Nenhum produto favoritado.</p>
-            )}
+                    ) : (
+                        <p className="notFound">Nenhum produto favoritado.</p>
+                    )}
+                </LoadingContainer>
+            </section>
         </PageWrapper>
     );
 }
