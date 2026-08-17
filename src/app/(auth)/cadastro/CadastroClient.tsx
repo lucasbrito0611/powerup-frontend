@@ -13,7 +13,7 @@ import { maskCPF, maskPhone } from "@/lib/utils";
 
 export default function CadastroClient() {
     const router = useRouter();
-    const { register, handleSubmit, formState: { errors } } = useForm<CadastroSchemaType>({
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CadastroSchemaType>({
         resolver: zodResolver(cadastroSchema),
         mode: "onChange"
     });
@@ -118,8 +118,13 @@ export default function CadastroClient() {
                                 </div>
                             </div>
                         </div>
-                        <Button type="submit" variant="submit" size="submit">
-                            Criar
+                        <Button
+                            type="submit"
+                            variant="submit"
+                            size="submit"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "Cadastrando..." : "Criar"}
                         </Button>
                     </form>
                     <a href="/login" className="text-center mb-lg:text-lg font-semibold text-dark-green hover:underline">

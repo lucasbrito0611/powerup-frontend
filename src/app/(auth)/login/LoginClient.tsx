@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/lib/toast";
 import api from "@/services/api";
+import { cn } from "@/lib/utils";
 import EsqueceuSenhaModal from "@/components/modals/EsqueceuSenhaModal";
 
 export default function LoginClient() {
@@ -18,8 +20,9 @@ export default function LoginClient() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get("redirect");
+    const [googleLoading, setGoogleLoading] = useState(false);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<LoginSchemaType>({
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginSchemaType>({
         resolver: zodResolver(loginSchema),
         mode: "onChange"
     });
@@ -101,12 +104,17 @@ export default function LoginClient() {
             console.error("Erro no login com Google:", error.response?.data || error.message);
             const msg = error.response?.data?.errors?.[0] || error.response?.data?.detail || "Não foi possível entrar com o Google. Tente novamente.";
             notify(msg, "error");
+        } finally {
+            setGoogleLoading(false);
         }
     };
 
     const loginWithGoogle = useGoogleLogin({
         onSuccess: handleGoogleSuccess,
-        onError: () => notify("Login com Google cancelado ou falhou.", "error"),
+        onError: () => {
+            setGoogleLoading(false);
+            notify("Login com Google cancelado ou falhou.", "error");
+        },
     });
 
     const onError = (errors: FieldErrors<LoginSchemaType>) => {
@@ -143,8 +151,9 @@ export default function LoginClient() {
                                 form="login-form"
                                 variant="submit"
                                 size="submit"
+                                disabled={isSubmitting || googleLoading}
                             >
-                                Entrar
+                                {isSubmitting ? "Entrando..." : "Entrar"}
                             </Button>
 
                             <EsqueceuSenhaModal />
@@ -161,8 +170,15 @@ export default function LoginClient() {
                         <button
                             type="button"
                             id="google-login-btn"
-                            onClick={() => loginWithGoogle()}
-                            className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md py-2.5 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 cursor-pointer shadow-sm"
+                            disabled={isSubmitting || googleLoading}
+                            onClick={() => {
+                                setGoogleLoading(true);
+                                loginWithGoogle();
+                            }}
+                            className={cn(
+                                "w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md py-2.5 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 cursor-pointer shadow-sm",
+                                (isSubmitting || googleLoading) && "opacity-60 cursor-not-allowed"
+                            )}
                         >
                             {/* Logo Google SVG oficial */}
                             <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -171,7 +187,7 @@ export default function LoginClient() {
                                 <path fill="#FBBC05" d="M10.4 28.6A14.9 14.9 0 0 1 9.5 24c0-1.6.3-3.1.8-4.6L2.5 13.4A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.8-6.1z"/>
                                 <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.7 2.2-7.7 2.2-6.3 0-11.7-4-13.6-9.4l-7.8 6.1C6.5 42.5 14.6 48 24 48z"/>
                             </svg>
-                            Entrar com Google
+                            {googleLoading ? "Conectando ao Google..." : "Entrar com Google"}
                         </button>
                     </div>
                     <a href="/cadastro" className="text-center mb-lg:text-lg font-semibold text-dark-green hover:underline">
