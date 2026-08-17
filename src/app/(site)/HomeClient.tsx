@@ -122,7 +122,7 @@ export default function HomeClient() {
                 // SEÇÃO DO RESULTADO DA PESQUISA 
                 <section className="space-y-8 mt-2">
                     <p className='text-dark-grey text-xl font-medium'>Produtos encontrados: {resultado.length}</p>
-                    <LoadingContainer loading={loadingSearch}>
+                    <LoadingContainer loading={loadingSearch} type="products" count={4}>
                         {resultado.length > 0 ? (
                             <div className="productsContainer">
                                 {resultado.map(produto => (
@@ -166,7 +166,7 @@ export default function HomeClient() {
                             </div>
                         </section>
 
-                        {promocoes.length > 0 && (
+                        {(loadingHome || promocoes.length > 0) && (
                             <section className="space-y-8">
                                 <div className="flex justify-between items-center">
                                     <h2 className="h2">Ofertas Especiais</h2>
@@ -175,7 +175,7 @@ export default function HomeClient() {
                                         <FaChevronDown className="text-green text-lg mb-lg:text-xl rotate-180-smooth" />
                                     </Link>
                                 </div>
-                                <LoadingContainer loading={loadingHome}>
+                                <LoadingContainer loading={loadingHome} type="products" count={5}>
                                     <div className="productsContainer">
                                         {promocoes.map(produto =>
                                             <ProductCard key={produto.id} product={produto} />
@@ -193,7 +193,7 @@ export default function HomeClient() {
                                     <FaChevronDown className="text-green text-lg mb-lg:text-xl rotate-180-smooth" />
                                 </Link>
                             </div>
-                            <LoadingContainer loading={loadingHome}>
+                            <LoadingContainer loading={loadingHome} type="products" count={5}>
                                 {maisVendidos.length > 0 ? (
                                     <div className="productsContainer">
                                         {maisVendidos.map(produto => (

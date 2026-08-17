@@ -36,7 +36,7 @@ function ComprarNovamenteClient() {
                     <Filter produtos={produtos} onChange={setProdutosOrdenados} />
                 )}
 
-                <LoadingContainer loading={loading}>
+                <LoadingContainer loading={loading} type="products" count={8}>
                     {produtosOrdenados.length > 0 ? (
                         <div className="productsContainer">
                             {produtosOrdenados.map(produto => (

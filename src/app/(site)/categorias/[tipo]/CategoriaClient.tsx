@@ -21,7 +21,7 @@ export default function CategoriaClient({tipo}: {tipo: string}) {
     return (
         <PageWrapper pageName={pageName}>
             <section>
-                <LoadingContainer loading={loading}>
+                <LoadingContainer loading={loading} type="products" count={8}>
                     <div className="productsContainer">
                         {produtos_tipo.map((produto) => (
                             <ProductCard key={produto.id} product={produto} />

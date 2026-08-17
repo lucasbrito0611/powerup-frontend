@@ -32,7 +32,7 @@ export default function PromocoesClient() {
 
                 <Filter produtos={produtosOriginais} onChange={setProdutosPromocoes} />
 
-                <LoadingContainer loading={loading}>
+                <LoadingContainer loading={loading} type="products" count={8}>
                     {produtosPromocoes.length > 0 ? (
                         <div className="productsContainer">
                             {produtosPromocoes.map((produto) => (

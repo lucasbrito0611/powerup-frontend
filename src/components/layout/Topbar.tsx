@@ -14,6 +14,9 @@ import { useMenu } from '@/contexts/MenuContext';
 import { useCarrinho } from '@/contexts/CarrinhoContext'; 
 import { useNotificacao } from '@/contexts/NotificacaoContext';
 
+import TopbarAuthSkeleton from '@/components/loading/TopbarAuthSkeleton';
+import { Skeleton } from '@/components/ui/skeleton';
+
 const UserDropdown = dynamic(() => import('@/components/UserDropdown'), { ssr: false });
 
 const Topbar = ({ page }: { page: string }) => {
@@ -36,7 +39,9 @@ const Topbar = ({ page }: { page: string }) => {
             </Link>
             <div className='flex items-center gap-2'>
                 <div className='relative mr-2'>
-                    {isInitialized && (
+                    {!isInitialized ? (
+                        <Skeleton className="w-[34px] h-[34px] tb:w-[38px] tb:h-[38px] rounded-full" />
+                    ) : (
                         <>
                             <Icon icon={<IoMdCart className='text-[18px] tb:text-[22px]' />} href="/carrinho" />
                             {totalItems > 0 && (
@@ -49,7 +54,7 @@ const Topbar = ({ page }: { page: string }) => {
                 </div>
 
                 {authLoading ? (
-                    null
+                    <TopbarAuthSkeleton />
                 ) : isLogged && user ? (
                     <>
                         <div className='relative mr-2'>
